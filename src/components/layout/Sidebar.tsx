@@ -1,0 +1,103 @@
+'use client';
+
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
+import {
+  LayoutDashboard, BookOpen, CalendarDays, Lightbulb, MessageCircle, LogOut, ChevronRight
+} from 'lucide-react';
+
+const NAV = [
+  { href: '/dashboard',            icon: LayoutDashboard, label: 'Home' },
+  { href: '/dashboard/articles',   icon: BookOpen,        label: 'Articles' },
+  { href: '/dashboard/calendar',   icon: CalendarDays,    label: 'Coaching Calendar' },
+  { href: '/dashboard/reflections',icon: Lightbulb,       label: 'Reflections' },
+  { href: '/dashboard/chat',       icon: MessageCircle,   label: 'Career Chat' },
+];
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
+  return (
+    <aside
+      className="flex flex-col h-full w-64 border-r"
+      style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+    >
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-6 py-5 border-b" style={{ borderColor: 'var(--border)' }}>
+        <VernonMark />
+        <div>
+          <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--primary)' }}>Vernon</span>
+          <p className="text-xs leading-none" style={{ color: 'var(--text-muted)' }}>Career Coaching</p>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {NAV.map(({ href, icon: Icon, label }) => {
+          const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+          return (
+            <button
+              key={href}
+              onClick={() => router.push(href)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group"
+              style={active ? {
+                background: 'var(--primary)',
+                color: '#fff',
+              } : {
+                color: 'var(--text-muted)',
+              }}
+            >
+              <Icon size={18} />
+              <span className="flex-1 text-left">{label}</span>
+              {active && <ChevronRight size={14} />}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* User */}
+      <div className="px-3 pb-4 space-y-1 border-t pt-4" style={{ borderColor: 'var(--border)' }}>
+        {user && (
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1"
+            style={{ background: 'var(--surface-muted)' }}>
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+              style={{ background: 'var(--primary)' }}
+            >
+              {user.name.charAt(0)}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-sm font-medium truncate" style={{ color: 'var(--foreground)' }}>{user.name}</p>
+              <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user.role}</p>
+            </div>
+          </div>
+        )}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          <LogOut size={18} />
+          Sign out
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function VernonMark() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="20" fill="#e8f4f8" />
+      <path d="M12 13 L20 27 L28 13" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <circle cx="20" cy="27" r="2.5" fill="var(--primary)" />
+    </svg>
+  );
+}
