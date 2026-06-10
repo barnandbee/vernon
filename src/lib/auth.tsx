@@ -19,13 +19,33 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const DEMO_USER: User = {
-  id: '1',
-  name: 'Alex Johnson',
-  email: 'alex@example.com',
-  role: 'Professional',
-  avatar: undefined,
+export const DEMO_CREDENTIALS = {
+  email: 'demo@vernon.app',
+  password: 'demo1234',
 };
+
+const DEMO_USER: User = {
+  id: 'demo-user',
+  name: 'Jamie Rivera',
+  email: DEMO_CREDENTIALS.email,
+  role: 'Member · Demo Account',
+};
+
+function userFromEmail(email: string): User {
+  const namePart = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
+  const name = namePart
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ') || 'Explorer';
+
+  return {
+    id: `user-${email.toLowerCase()}`,
+    name,
+    email,
+    role: 'Member',
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -40,14 +60,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Demo login — any non-empty email/password works
-    if (email && password) {
-      const u = { ...DEMO_USER, email };
-      setUser(u);
-      localStorage.setItem('vernon_user', JSON.stringify(u));
-      return true;
-    }
-    return false;
+    if (!email || !password) return false;
+
+    const isDemoAccount =
+      email.trim().toLowerCase() === DEMO_CREDENTIALS.email &&
+      password === DEMO_CREDENTIALS.password;
+
+    const loggedInUser = isDemoAccount ? DEMO_USER : userFromEmail(email.trim());
+
+    setUser(loggedInUser);
+    localStorage.setItem('vernon_user', JSON.stringify(loggedInUser));
+    return true;
   };
 
   const logout = () => {

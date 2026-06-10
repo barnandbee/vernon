@@ -1,18 +1,25 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAuth, DEMO_CREDENTIALS } from '@/lib/auth';
+import { Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
+import VernonLogo from '@/components/VernonLogo';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/dashboard');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,6 +32,14 @@ export default function LoginPage() {
     } else {
       setError('Please enter your email and password.');
     }
+  };
+
+  const handleDemoLogin = async () => {
+    setError('');
+    setLoading(true);
+    const ok = await login(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
+    setLoading(false);
+    if (ok) router.push('/dashboard');
   };
 
   return (
@@ -41,7 +56,7 @@ export default function LoginPage() {
 
         <div>
           <blockquote className="text-white/90 text-2xl font-light leading-relaxed mb-6">
-            "The first step towards getting somewhere is to decide that you are not going to stay where you are."
+            &ldquo;The first step towards getting somewhere is to decide that you are not going to stay where you are.&rdquo;
           </blockquote>
           <p className="text-white/60 text-sm">— J.P. Morgan</p>
         </div>
@@ -142,6 +157,23 @@ export default function LoginPage() {
             </button>
           </form>
 
+          <div className="flex items-center gap-3 my-6">
+            <div className="h-px flex-1" style={{ background: 'var(--border)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>OR</span>
+            <div className="h-px flex-1" style={{ background: 'var(--border)' }} />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 border transition-opacity disabled:opacity-70"
+            style={{ borderColor: 'var(--primary)', color: 'var(--primary)', background: 'var(--surface)' }}
+          >
+            <Sparkles size={16} />
+            Continue with demo account
+          </button>
+
           <div className="mt-6 text-center">
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
               New to Vernon?{' '}
@@ -151,22 +183,24 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="mt-10 p-4 rounded-xl text-sm" style={{ background: 'var(--surface-muted)', color: 'var(--text-muted)' }}>
-            <strong>Demo:</strong> Enter any email and password to explore the platform.
+          <div className="mt-10 p-4 rounded-xl text-sm space-y-1.5" style={{ background: 'var(--surface-muted)', color: 'var(--text-muted)' }}>
+            <p className="font-semibold" style={{ color: 'var(--foreground)' }}>Demo account details</p>
+            <p>
+              Email:{' '}
+              <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
+                {DEMO_CREDENTIALS.email}
+              </code>
+            </p>
+            <p>
+              Password:{' '}
+              <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
+                {DEMO_CREDENTIALS.password}
+              </code>
+            </p>
+            <p className="pt-1">Or sign in with any email and password to explore as a new user.</p>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-function VernonLogo({ size = 32, light = false }: { size?: number; light?: boolean }) {
-  const color = light ? '#ffffff' : 'var(--primary)';
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
-      <circle cx="20" cy="20" r="20" fill={light ? 'rgba(255,255,255,0.15)' : '#e8f4f8'} />
-      <path d="M12 13 L20 27 L28 13" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="20" cy="27" r="2.5" fill={color} />
-    </svg>
   );
 }

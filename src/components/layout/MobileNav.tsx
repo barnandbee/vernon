@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import VernonLogo from '@/components/VernonLogo';
 import {
   LayoutDashboard, BookOpen, CalendarDays, Lightbulb, MessageCircle, Menu, X, LogOut
 } from 'lucide-react';
@@ -33,11 +34,7 @@ export default function MobileNav() {
         style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
       >
         <div className="flex items-center gap-2">
-          <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-            <circle cx="20" cy="20" r="20" fill="#e8f4f8" />
-            <path d="M12 13 L20 27 L28 13" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            <circle cx="20" cy="27" r="2.5" fill="var(--primary)" />
-          </svg>
+          <VernonLogo size={28} />
           <span className="font-bold" style={{ color: 'var(--primary)' }}>Vernon</span>
         </div>
         <button onClick={() => setOpen(true)} style={{ color: 'var(--text-muted)' }}>

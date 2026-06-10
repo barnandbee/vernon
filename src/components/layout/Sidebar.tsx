@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import VernonLogo from '@/components/VernonLogo';
 import {
   LayoutDashboard, BookOpen, CalendarDays, Lightbulb, MessageCircle, LogOut, ChevronRight
 } from 'lucide-react';
@@ -31,7 +32,7 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b" style={{ borderColor: 'var(--border)' }}>
-        <VernonMark />
+        <VernonLogo size={32} />
         <div>
           <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--primary)' }}>Vernon</span>
           <p className="text-xs leading-none" style={{ color: 'var(--text-muted)' }}>Career Coaching</p>
@@ -89,15 +90,5 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
-  );
-}
-
-function VernonMark() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-      <circle cx="20" cy="20" r="20" fill="#e8f4f8" />
-      <path d="M12 13 L20 27 L28 13" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="20" cy="27" r="2.5" fill="var(--primary)" />
-    </svg>
   );
 }
