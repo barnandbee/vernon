@@ -5,13 +5,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import VernonLogo from '@/components/VernonLogo';
 import {
-  LayoutDashboard, BookOpen, CalendarDays, Lightbulb, MessageCircle, Menu, X, LogOut
+  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, MessageCircle, Menu, X, LogOut
 } from 'lucide-react';
 
 const NAV = [
   { href: '/dashboard',             icon: LayoutDashboard, label: 'Home' },
-  { href: '/dashboard/articles',    icon: BookOpen,        label: 'Articles' },
+  { href: '/dashboard/journey',     icon: Compass,         label: 'My Journey' },
   { href: '/dashboard/calendar',    icon: CalendarDays,    label: 'Calendar' },
+  { href: '/dashboard/learning',    icon: GraduationCap,   label: 'Learning' },
+  { href: '/dashboard/articles',    icon: BookOpen,        label: 'Resources' },
+  { href: '/dashboard/practice',    icon: Target,          label: 'Practice' },
   { href: '/dashboard/reflections', icon: Lightbulb,       label: 'Reflections' },
   { href: '/dashboard/chat',        icon: MessageCircle,   label: 'Career Chat' },
 ];

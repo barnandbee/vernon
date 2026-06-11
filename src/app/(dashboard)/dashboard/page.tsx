@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle,
-  TrendingUp, Star, Clock, ArrowRight, Sparkles
+  TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target
 } from 'lucide-react';
 
 const QUICK_ACTIONS = [
@@ -13,8 +13,8 @@ const QUICK_ACTIONS = [
     icon: BookOpen,
     color: '#3b82f6',
     bg: '#eff6ff',
-    title: 'Explore Articles',
-    desc: 'Curated reads for your growth',
+    title: 'Explore Resources',
+    desc: 'Articles, videos & podcasts',
   },
   {
     href: '/dashboard/calendar',
@@ -23,6 +23,22 @@ const QUICK_ACTIONS = [
     bg: '#ecfdf5',
     title: 'Coaching Calendar',
     desc: 'Book your next session',
+  },
+  {
+    href: '/dashboard/learning',
+    icon: GraduationCap,
+    color: '#c2410c',
+    bg: '#fff7ed',
+    title: 'Learning & Tools',
+    desc: 'Courses, workshops & toolkits',
+  },
+  {
+    href: '/dashboard/practice',
+    icon: Target,
+    color: '#be185d',
+    bg: '#fdf2f8',
+    title: 'Real-World Practice',
+    desc: 'Try it, then reflect on it',
   },
   {
     href: '/dashboard/reflections',
@@ -95,11 +111,20 @@ export default function DashboardPage() {
             style={{ width: '42%', background: 'var(--primary)' }}
           />
         </div>
-        <div className="flex items-center gap-1.5 mt-3">
-          <Sparkles size={13} style={{ color: 'var(--accent)' }} />
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            You&apos;re making great progress — 3 reflections completed this month
-          </p>
+        <div className="flex items-center justify-between gap-2 mt-3 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <Sparkles size={13} style={{ color: 'var(--accent)' }} />
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              You&apos;re making great progress — 3 reflections completed this month
+            </p>
+          </div>
+          <button
+            onClick={() => router.push('/dashboard/journey')}
+            className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
+            style={{ color: 'var(--primary)' }}
+          >
+            View your journey <ArrowRight size={12} />
+          </button>
         </div>
       </div>
 
@@ -108,7 +133,7 @@ export default function DashboardPage() {
         <h2 className="text-sm font-semibold mb-3 uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
           Quick Access
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {QUICK_ACTIONS.map(({ href, icon: Icon, color, bg, title, desc }) => (
             <button
               key={href}

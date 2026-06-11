@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Lightbulb, Plus, ChevronRight, Sparkles, CheckCircle2, Clock, Lock } from 'lucide-react';
+import { Lightbulb, Plus, ChevronRight, Sparkles, CheckCircle2, Clock, Lock, UserRound } from 'lucide-react';
 
 type Prompt = {
   id: number;
@@ -175,6 +175,17 @@ export default function ReflectionsPage() {
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Career Reflections</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
           Deepen your self-awareness through guided prompts
+        </p>
+      </div>
+
+      {/* Coach-curated note */}
+      <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: '#e8f4f8' }}>
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--surface)' }}>
+          <UserRound size={16} style={{ color: 'var(--primary)' }} />
+        </div>
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--primary)' }}>
+          <span className="font-semibold">Written by qualified coaches. </span>
+          Every prompt in this library is designed by Vernon&apos;s coaching team to deepen self-awareness between sessions — some are matched to what comes up in your own coaching conversations.
         </p>
       </div>
 
