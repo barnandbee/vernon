@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle,
-  TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target
+  TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target, Heart
 } from 'lucide-react';
 
 const QUICK_ACTIONS = [
@@ -233,6 +233,26 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Community teaser */}
+      <div className="rounded-2xl p-5 flex items-center gap-4 flex-wrap" style={{ background: 'var(--surface)' }}>
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#fdf2f8' }}>
+          <Heart size={20} style={{ color: '#be185d' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Maya just hit a 12-day streak</p>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Send some encouragement, or share your own progress with your circle.
+          </p>
+        </div>
+        <button
+          onClick={() => router.push('/dashboard/community')}
+          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+          style={{ background: '#fdf2f8', color: '#be185d' }}
+        >
+          Open Community <ArrowRight size={12} />
+        </button>
       </div>
 
       {/* Vernon AI banner */}
