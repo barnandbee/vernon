@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, DEMO_CREDENTIALS, ORG_DEMO_CREDENTIALS } from '@/lib/auth';
-import { Eye, EyeOff, Loader2, Sparkles, Building2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Building2 } from 'lucide-react';
 import VernonLogo from '@/components/VernonLogo';
 
 export default function LoginPage() {
@@ -32,22 +32,6 @@ export default function LoginPage() {
     } else {
       setError('Please enter your email and password.');
     }
-  };
-
-  const handleDemoLogin = async () => {
-    setError('');
-    setLoading(true);
-    const ok = await login(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
-    setLoading(false);
-    if (ok) router.push('/dashboard');
-  };
-
-  const handleOrgDemoLogin = async () => {
-    setError('');
-    setLoading(true);
-    const ok = await login(ORG_DEMO_CREDENTIALS.email, ORG_DEMO_CREDENTIALS.password);
-    setLoading(false);
-    if (ok) router.push('/dashboard');
   };
 
   return (
@@ -165,34 +149,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="flex items-center gap-3 my-6">
-            <div className="h-px flex-1" style={{ background: 'var(--border)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>OR</span>
-            <div className="h-px flex-1" style={{ background: 'var(--border)' }} />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            disabled={loading}
-            className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 border transition-opacity disabled:opacity-70"
-            style={{ borderColor: 'var(--primary)', color: 'var(--primary)', background: 'var(--surface)' }}
-          >
-            <Sparkles size={16} />
-            Continue with demo account
-          </button>
-
-          <button
-            type="button"
-            onClick={handleOrgDemoLogin}
-            disabled={loading}
-            className="w-full mt-3 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 border transition-opacity disabled:opacity-70"
-            style={{ borderColor: 'var(--border)', color: 'var(--foreground)', background: 'var(--surface)' }}
-          >
-            <Building2 size={16} />
-            Continue as organisation staff
-          </button>
-
           <div className="mt-6 text-center">
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
               New to Vernon?{' '}
@@ -213,7 +169,7 @@ export default function LoginPage() {
             <p>
               Password:{' '}
               <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
-                {DEMO_CREDENTIALS.password}
+                ••••••••
               </code>
             </p>
             <p className="pt-1">Or sign in with any email and password to explore as a new user.</p>
@@ -232,7 +188,7 @@ export default function LoginPage() {
             <p>
               Password:{' '}
               <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
-                {ORG_DEMO_CREDENTIALS.password}
+                ••••••••
               </code>
             </p>
             <p className="pt-1">For teams who&apos;ve partnered with Vernon — view aggregate engagement insights for your members.</p>
