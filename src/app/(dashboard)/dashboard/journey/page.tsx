@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SourceBadge from '@/components/SourceBadge';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import {
   Compass, CheckCircle2, Circle, Clock3, ChevronRight, Sparkles,
   Lightbulb, ArrowRight, Video, Users, ListChecks, Target,
@@ -145,6 +146,8 @@ export default function JourneyPage() {
           The work that happens between sessions is where the change really sticks.
         </p>
       </div>
+
+      <OrgPrivacyNote shared="your overall progress through the coaching cycle and completed actions" />
 
       {/* Cycle stepper */}
       <div className="rounded-2xl p-5 overflow-x-auto" style={{ background: 'var(--surface)' }}>

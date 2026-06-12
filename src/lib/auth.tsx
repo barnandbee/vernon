@@ -7,6 +7,8 @@ interface User {
   name: string;
   email: string;
   role: string;
+  accountType: 'member' | 'org_staff';
+  orgName?: string;
   avatar?: string;
 }
 
@@ -24,11 +26,26 @@ export const DEMO_CREDENTIALS = {
   password: 'demo1234',
 };
 
+export const ORG_DEMO_CREDENTIALS = {
+  email: 'org@vernon.app',
+  password: 'org1234',
+};
+
 const DEMO_USER: User = {
   id: 'demo-user',
   name: 'Jamie Rivera',
   email: DEMO_CREDENTIALS.email,
   role: 'Member · Demo Account',
+  accountType: 'member',
+};
+
+const ORG_DEMO_USER: User = {
+  id: 'org-staff-demo',
+  name: 'Priya Anand',
+  email: ORG_DEMO_CREDENTIALS.email,
+  role: 'Programme Lead · Lighthouse Partners',
+  accountType: 'org_staff',
+  orgName: 'Lighthouse Partners',
 };
 
 function userFromEmail(email: string): User {
@@ -44,6 +61,7 @@ function userFromEmail(email: string): User {
     name,
     email,
     role: 'Member',
+    accountType: 'member',
   };
 }
 
@@ -62,11 +80,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     if (!email || !password) return false;
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     const isDemoAccount =
-      email.trim().toLowerCase() === DEMO_CREDENTIALS.email &&
+      normalizedEmail === DEMO_CREDENTIALS.email &&
       password === DEMO_CREDENTIALS.password;
 
-    const loggedInUser = isDemoAccount ? DEMO_USER : userFromEmail(email.trim());
+    const isOrgDemoAccount =
+      normalizedEmail === ORG_DEMO_CREDENTIALS.email &&
+      password === ORG_DEMO_CREDENTIALS.password;
+
+    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : isDemoAccount ? DEMO_USER : userFromEmail(email.trim());
 
     setUser(loggedInUser);
     localStorage.setItem('vernon_user', JSON.stringify(loggedInUser));

@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
+import OrganisationDashboard from './OrganisationDashboard';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle,
   TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target, Heart
@@ -75,6 +77,10 @@ export default function DashboardPage() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
+  if (user?.accountType === 'org_staff') {
+    return <OrganisationDashboard orgName={user.orgName ?? 'your organisation'} />;
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
       {/* Welcome header */}
@@ -127,6 +133,8 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
+
+      <OrgPrivacyNote shared="your overall progress percentage and engagement streak" />
 
       {/* Quick actions */}
       <div>

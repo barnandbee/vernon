@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import { ChevronLeft, ChevronRight, Clock, Video, MapPin, Plus, User, CheckCircle2 } from 'lucide-react';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -79,6 +80,8 @@ export default function CalendarPage() {
           Book a Session
         </button>
       </div>
+
+      <OrgPrivacyNote shared="that you have upcoming or completed coaching sessions — not session notes" />
 
       {/* View toggle */}
       <div className="flex items-center gap-2">

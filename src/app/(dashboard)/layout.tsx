@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
@@ -9,12 +9,20 @@ import MobileNav from '@/components/layout/MobileNav';
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace('/login');
     }
   }, [user, isLoading, router]);
+
+  // Organisation staff only have access to the aggregate dashboard.
+  useEffect(() => {
+    if (!isLoading && user?.accountType === 'org_staff' && pathname !== '/dashboard') {
+      router.replace('/dashboard');
+    }
+  }, [user, isLoading, pathname, router]);
 
   if (isLoading) {
     return (

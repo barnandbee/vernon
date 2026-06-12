@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import {
   GraduationCap, Users, Wrench, Clock, Compass, Briefcase, TrendingUp,
   ListOrdered, PenSquare, IdCard, BarChart3,
@@ -66,6 +67,8 @@ export default function LearningPage() {
           Build the skills and self-knowledge to back up your plan.
         </p>
       </div>
+
+      <OrgPrivacyNote shared="which modules and activities you've completed" />
 
       {/* Category tabs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

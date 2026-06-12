@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Target, Compass, Ear, FlaskConical, Mountain, Sparkle, Sparkles, RefreshCw } from 'lucide-react';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 
 type DimensionKey = 'uncertainty' | 'feedback' | 'assumptions' | 'persistence' | 'curiosity';
 
@@ -91,6 +92,8 @@ export default function PracticePage() {
           getting comfortable testing what you&apos;re learning, even when it&apos;s uncertain.
         </p>
       </div>
+
+      <OrgPrivacyNote shared="how often you engage with practice activities — not your individual ratings or notes" />
 
       {/* Intro card */}
       <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>

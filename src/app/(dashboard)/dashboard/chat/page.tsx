@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, RotateCcw, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 
 type Message = {
   id: string;
@@ -139,6 +140,13 @@ export default function ChatPage() {
           <RotateCcw size={12} />
           New conversation
         </button>
+      </div>
+
+      {/* Org privacy note */}
+      <div className="px-4 pt-3 flex-shrink-0">
+        <div className="max-w-2xl mx-auto">
+          <OrgPrivacyNote shared="that you've used Career Chat — never your messages" />
+        </div>
       </div>
 
       {/* Messages */}

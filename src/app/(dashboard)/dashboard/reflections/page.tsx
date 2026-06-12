@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import { Lightbulb, Plus, ChevronRight, Sparkles, CheckCircle2, Clock, Lock, UserRound } from 'lucide-react';
 
 type Prompt = {
@@ -188,6 +189,8 @@ export default function ReflectionsPage() {
           Every prompt in this library is designed by Vernon&apos;s coaching team to deepen self-awareness between sessions — some are matched to what comes up in your own coaching conversations.
         </p>
       </div>
+
+      <OrgPrivacyNote shared="that you completed a reflection, and your reflection streak" />
 
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3">

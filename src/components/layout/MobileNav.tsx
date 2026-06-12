@@ -5,10 +5,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import VernonLogo from '@/components/VernonLogo';
 import {
-  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Menu, X, LogOut
+  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, Menu, X, LogOut
 } from 'lucide-react';
 
-const NAV = [
+const MEMBER_NAV = [
   { href: '/dashboard',             icon: LayoutDashboard, label: 'Home' },
   { href: '/dashboard/journey',     icon: Compass,         label: 'My Journey' },
   { href: '/dashboard/calendar',    icon: CalendarDays,    label: 'Calendar' },
@@ -20,11 +20,16 @@ const NAV = [
   { href: '/dashboard/chat',        icon: MessageCircle,   label: 'Career Chat' },
 ];
 
+const ORG_STAFF_NAV = [
+  { href: '/dashboard', icon: Building2, label: 'Organisation Dashboard' },
+];
+
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const NAV = user?.accountType === 'org_staff' ? ORG_STAFF_NAV : MEMBER_NAV;
 
   const go = (href: string) => {
     router.push(href);

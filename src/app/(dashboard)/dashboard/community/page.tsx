@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import {
   Users, Lock, UserPlus, Heart, Flame, Sparkles, GraduationCap, Lightbulb, Target, Send, CheckCircle2,
 } from 'lucide-react';
@@ -140,6 +141,8 @@ export default function CommunityPage() {
           Your reflections and activity stay between you and your coach. Nothing appears here unless you choose to publish it — like a response to the group prompt below.
         </p>
       </div>
+
+      <OrgPrivacyNote shared="that you're active in the community and your streak — not who you connect with or what you post" />
 
       {/* Your circle */}
       <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
