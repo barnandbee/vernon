@@ -2,8 +2,8 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, DEMO_CREDENTIALS, ORG_DEMO_CREDENTIALS } from '@/lib/auth';
-import { Eye, EyeOff, Loader2, Building2 } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import VernonLogo from '@/components/VernonLogo';
 
 export default function LoginPage() {
@@ -30,7 +30,7 @@ export default function LoginPage() {
     if (ok) {
       router.push('/dashboard');
     } else {
-      setError('Please enter your email and password.');
+      setError('Invalid email or password.');
     }
   };
 
@@ -148,51 +148,6 @@ export default function LoginPage() {
               Sign in
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              New to Vernon?{' '}
-              <button className="font-medium" style={{ color: 'var(--primary)' }}>
-                Create an account
-              </button>
-            </p>
-          </div>
-
-          <div className="mt-10 p-4 rounded-xl text-sm space-y-1.5" style={{ background: 'var(--surface-muted)', color: 'var(--text-muted)' }}>
-            <p className="font-semibold" style={{ color: 'var(--foreground)' }}>Demo account details</p>
-            <p>
-              Email:{' '}
-              <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
-                {DEMO_CREDENTIALS.email}
-              </code>
-            </p>
-            <p>
-              Password:{' '}
-              <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
-                ••••••••
-              </code>
-            </p>
-            <p className="pt-1">Or sign in with any email and password to explore as a new user.</p>
-          </div>
-
-          <div className="mt-3 p-4 rounded-xl text-sm space-y-1.5" style={{ background: 'var(--surface-muted)', color: 'var(--text-muted)' }}>
-            <p className="font-semibold flex items-center gap-1.5" style={{ color: 'var(--foreground)' }}>
-              <Building2 size={14} /> Organisation account details
-            </p>
-            <p>
-              Email:{' '}
-              <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
-                {ORG_DEMO_CREDENTIALS.email}
-              </code>
-            </p>
-            <p>
-              Password:{' '}
-              <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)' }}>
-                ••••••••
-              </code>
-            </p>
-            <p className="pt-1">For teams who&apos;ve partnered with Vernon — view aggregate engagement insights for your members.</p>
-          </div>
         </div>
       </div>
     </div>

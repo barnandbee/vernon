@@ -48,23 +48,6 @@ const ORG_DEMO_USER: User = {
   orgName: 'Lighthouse Partners',
 };
 
-function userFromEmail(email: string): User {
-  const namePart = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
-  const name = namePart
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ') || 'Explorer';
-
-  return {
-    id: `user-${email.toLowerCase()}`,
-    name,
-    email,
-    role: 'Member',
-    accountType: 'member',
-  };
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,7 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       normalizedEmail === ORG_DEMO_CREDENTIALS.email &&
       password === ORG_DEMO_CREDENTIALS.password;
 
-    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : isDemoAccount ? DEMO_USER : userFromEmail(email.trim());
+    if (!isDemoAccount && !isOrgDemoAccount) return false;
+
+    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : DEMO_USER;
 
     setUser(loggedInUser);
     localStorage.setItem('vernon_user', JSON.stringify(loggedInUser));

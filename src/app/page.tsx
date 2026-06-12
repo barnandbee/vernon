@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuth, DEMO_CREDENTIALS } from '@/lib/auth';
+import { useAuth } from '@/lib/auth';
 import VernonLogo from '@/components/VernonLogo';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle, ArrowRight, Sparkles, CheckCircle2
@@ -45,13 +45,8 @@ const VERNON_POINTS = [
 ];
 
 export default function LandingPage() {
-  const { user, login } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-
-  const handleDemo = async () => {
-    const ok = await login(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
-    if (ok) router.push('/dashboard');
-  };
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
@@ -116,14 +111,6 @@ export default function LandingPage() {
           >
             Sign in <ArrowRight size={16} />
           </button>
-          <button
-            onClick={handleDemo}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold border flex items-center justify-center gap-2"
-            style={{ borderColor: 'var(--border)', color: 'var(--foreground)', background: 'var(--surface)' }}
-          >
-            <Sparkles size={16} style={{ color: 'var(--accent)' }} />
-            Explore the demo
-          </button>
         </div>
       </section>
 
@@ -170,44 +157,6 @@ export default function LandingPage() {
             >
               <VernonLogo size={88} light />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Demo callout */}
-      <section className="max-w-3xl mx-auto px-6 sm:px-10 pb-20">
-        <div className="rounded-2xl p-6 sm:p-8 text-center" style={{ background: 'var(--surface)' }}>
-          <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--foreground)' }}>Want to look around first?</h3>
-          <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>
-            Use the demo account to explore the platform with sample data — no sign-up required.
-          </p>
-          <div
-            className="inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-4 mb-6 text-sm px-4 py-3 rounded-xl"
-            style={{ background: 'var(--surface-muted)', color: 'var(--text-muted)' }}
-          >
-            <span>
-              Email:{' '}
-              <code className="font-mono font-semibold px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)', color: 'var(--foreground)' }}>
-                {DEMO_CREDENTIALS.email}
-              </code>
-            </span>
-            <span className="hidden sm:inline">·</span>
-            <span>
-              Password:{' '}
-              <code className="font-mono font-semibold px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)', color: 'var(--foreground)' }}>
-                {DEMO_CREDENTIALS.password}
-              </code>
-            </span>
-          </div>
-          <div>
-            <button
-              onClick={handleDemo}
-              className="px-6 py-3 rounded-xl font-semibold text-white inline-flex items-center gap-2"
-              style={{ background: 'var(--accent)' }}
-            >
-              <Sparkles size={16} />
-              Continue with demo account
-            </button>
           </div>
         </div>
       </section>
