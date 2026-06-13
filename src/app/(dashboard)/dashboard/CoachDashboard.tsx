@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { CLIENTS, APPOINTMENTS } from './coachData';
 import {
-  Users, CalendarDays, Sparkles, ArrowRight, Clock, Video, MapPin, AlertCircle, TrendingUp, ClipboardCheck,
+  Users, CalendarDays, Sparkles, ArrowRight, Clock, Video, MapPin, AlertCircle, TrendingUp, ClipboardCheck, GraduationCap,
 } from 'lucide-react';
 
 export default function CoachDashboard() {
@@ -143,7 +143,7 @@ export default function CoachDashboard() {
         <h2 className="text-sm font-semibold mb-3 uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
           Quick Access
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => router.push('/dashboard/clients')}
             className="text-left rounded-2xl p-5 transition-transform hover:scale-[1.02] active:scale-[0.98]"
@@ -176,6 +176,17 @@ export default function CoachDashboard() {
             </div>
             <p className="font-semibold text-sm mb-0.5" style={{ color: 'var(--foreground)' }}>Resource Finder</p>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Let AI suggest resources for a client</p>
+          </button>
+          <button
+            onClick={() => router.push('/dashboard/development')}
+            className="text-left rounded-2xl p-5 transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            style={{ background: 'var(--surface)' }}
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: '#fff7ed' }}>
+              <GraduationCap size={20} style={{ color: '#c2410c' }} />
+            </div>
+            <p className="font-semibold text-sm mb-0.5" style={{ color: 'var(--foreground)' }}>CPD & Training</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Programme resources and your CPD log</p>
           </button>
         </div>
       </div>

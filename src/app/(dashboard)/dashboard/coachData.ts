@@ -147,3 +147,94 @@ export function searchResources(query: string): Resource[] {
 
   return matched.length > 0 ? matched.slice(0, 4) : RESOURCE_LIBRARY.slice(0, 3);
 }
+
+export type CpdItemType = 'Document' | 'Course' | 'Webinar';
+export type CpdStatus = 'completed' | 'in_progress' | 'not_started';
+
+export type CpdItem = {
+  id: string;
+  title: string;
+  programme: string;
+  type: CpdItemType;
+  status: CpdStatus;
+  duration: string;
+  description: string;
+};
+
+export const CPD_HOURS_LOGGED = 18;
+export const CPD_HOURS_TARGET = 30;
+
+export const CPD_ITEMS: CpdItem[] = [
+  {
+    id: 'cpd-1',
+    title: 'Vernon Coach Accreditation Handbook',
+    programme: 'Core Accreditation',
+    type: 'Document',
+    status: 'completed',
+    duration: '40 page guide',
+    description: 'Standards, code of conduct, and session structure expected of every Vernon-accredited coach.',
+  },
+  {
+    id: 'cpd-2',
+    title: 'Leadership Transitions Coaching Practicum',
+    programme: 'Leadership Track',
+    type: 'Course',
+    status: 'in_progress',
+    duration: '6 modules · 4 of 6 complete',
+    description: 'Advanced techniques for coaching clients moving into people-leadership roles.',
+  },
+  {
+    id: 'cpd-3',
+    title: 'Supporting Returners: Confidence & Re-entry',
+    programme: 'Returner Programme',
+    type: 'Document',
+    status: 'completed',
+    duration: '25 min read',
+    description: 'Best-practice guide for coaching clients re-entering the workforce after a career break.',
+  },
+  {
+    id: 'cpd-4',
+    title: 'Negotiation Coaching Masterclass',
+    programme: 'Promotion & Negotiation',
+    type: 'Webinar',
+    status: 'not_started',
+    duration: '90 min',
+    description: 'Recorded masterclass on coaching clients through pay and scope negotiations.',
+  },
+  {
+    id: 'cpd-5',
+    title: 'Safeguarding & Ethics Refresher',
+    programme: 'Core Accreditation',
+    type: 'Course',
+    status: 'in_progress',
+    duration: '3 modules · 1 of 3 complete',
+    description: 'Annual refresher required to maintain Vernon coaching accreditation.',
+  },
+  {
+    id: 'cpd-6',
+    title: 'Facilitating the Values & Motivators Card Sort',
+    programme: 'Early Career Exploration',
+    type: 'Document',
+    status: 'completed',
+    duration: '15 min read',
+    description: 'Step-by-step guide for running the card sort exercise with clients exploring a pivot.',
+  },
+  {
+    id: 'cpd-7',
+    title: 'Trauma-Informed Coaching Conversations',
+    programme: 'Core Accreditation',
+    type: 'Webinar',
+    status: 'not_started',
+    duration: '60 min',
+    description: 'Recognising signs of distress and responding with care during sensitive sessions.',
+  },
+  {
+    id: 'cpd-8',
+    title: 'Reflective Practice & CPD Log',
+    programme: 'Core Accreditation',
+    type: 'Document',
+    status: 'in_progress',
+    duration: 'Ongoing',
+    description: 'Your running record of CPD hours and reflections for accreditation renewal.',
+  },
+];

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import { normalizePathname } from '@/lib/utils';
 import VernonLogo from '@/components/VernonLogo';
 import {
   LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, Menu, X, LogOut, Sparkles
@@ -25,15 +26,16 @@ const ORG_STAFF_NAV = [
 ];
 
 const COACH_NAV = [
-  { href: '/dashboard',           icon: LayoutDashboard, label: 'Coach Home' },
-  { href: '/dashboard/clients',   icon: Users,           label: 'My Clients' },
-  { href: '/dashboard/schedule',  icon: CalendarDays,    label: 'Schedule' },
-  { href: '/dashboard/resources', icon: Sparkles,        label: 'Resource Finder' },
+  { href: '/dashboard',            icon: LayoutDashboard, label: 'Coach Home' },
+  { href: '/dashboard/clients',    icon: Users,           label: 'My Clients' },
+  { href: '/dashboard/schedule',   icon: CalendarDays,    label: 'Schedule' },
+  { href: '/dashboard/resources',  icon: Sparkles,        label: 'Resource Finder' },
+  { href: '/dashboard/development', icon: GraduationCap,  label: 'CPD & Training' },
 ];
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname = normalizePathname(usePathname());
   const router = useRouter();
   const { user, logout } = useAuth();
   const NAV = user?.accountType === 'org_staff' ? ORG_STAFF_NAV

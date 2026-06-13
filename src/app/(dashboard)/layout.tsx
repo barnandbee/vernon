@@ -3,15 +3,16 @@
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import { normalizePathname } from '@/lib/utils';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 
-const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources'];
+const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources', '/dashboard/development'];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = normalizePathname(usePathname());
 
   useEffect(() => {
     if (!isLoading && !user) {
