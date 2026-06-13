@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import VernonLogo from '@/components/VernonLogo';
 import {
-  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, LogOut, ChevronRight
+  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, LogOut, ChevronRight, Sparkles
 } from 'lucide-react';
 
 const MEMBER_NAV = [
@@ -23,11 +23,20 @@ const ORG_STAFF_NAV = [
   { href: '/dashboard', icon: Building2, label: 'Organisation Dashboard' },
 ];
 
+const COACH_NAV = [
+  { href: '/dashboard',           icon: LayoutDashboard, label: 'Coach Home' },
+  { href: '/dashboard/clients',   icon: Users,           label: 'My Clients' },
+  { href: '/dashboard/schedule',  icon: CalendarDays,    label: 'Schedule' },
+  { href: '/dashboard/resources', icon: Sparkles,        label: 'Resource Finder' },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const NAV = user?.accountType === 'org_staff' ? ORG_STAFF_NAV : MEMBER_NAV;
+  const NAV = user?.accountType === 'org_staff' ? ORG_STAFF_NAV
+    : user?.accountType === 'coach' ? COACH_NAV
+    : MEMBER_NAV;
 
   const handleLogout = () => {
     logout();

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import OrganisationDashboard from './OrganisationDashboard';
+import CoachDashboard from './CoachDashboard';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle,
   TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target, Heart
@@ -79,6 +80,10 @@ export default function DashboardPage() {
 
   if (user?.accountType === 'org_staff') {
     return <OrganisationDashboard orgName={user.orgName ?? 'your organisation'} />;
+  }
+
+  if (user?.accountType === 'coach') {
+    return <CoachDashboard />;
   }
 
   return (

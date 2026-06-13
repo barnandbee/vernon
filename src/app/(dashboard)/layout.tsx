@@ -6,6 +6,8 @@ import { useAuth } from '@/lib/auth';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 
+const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources'];
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
@@ -17,9 +19,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [user, isLoading, router]);
 
-  // Organisation staff only have access to the aggregate dashboard.
+  // Organisation staff only have access to the aggregate dashboard, and
+  // coaches only have access to their coaching-focused set of pages.
   useEffect(() => {
-    if (!isLoading && user?.accountType === 'org_staff' && pathname !== '/dashboard') {
+    if (isLoading) return;
+    if (user?.accountType === 'org_staff' && pathname !== '/dashboard') {
+      router.replace('/dashboard');
+    } else if (user?.accountType === 'coach' && !COACH_ROUTES.includes(pathname)) {
       router.replace('/dashboard');
     }
   }, [user, isLoading, pathname, router]);

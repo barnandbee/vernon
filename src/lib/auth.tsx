@@ -7,7 +7,7 @@ interface User {
   name: string;
   email: string;
   role: string;
-  accountType: 'member' | 'org_staff';
+  accountType: 'member' | 'org_staff' | 'coach';
   orgName?: string;
   avatar?: string;
 }
@@ -31,6 +31,11 @@ export const ORG_DEMO_CREDENTIALS = {
   password: 'org1234',
 };
 
+export const COACH_DEMO_CREDENTIALS = {
+  email: 'coach@vernon.app',
+  password: 'coach1234',
+};
+
 const DEMO_USER: User = {
   id: 'demo-user',
   name: 'Jamie Rivera',
@@ -46,6 +51,14 @@ const ORG_DEMO_USER: User = {
   role: 'Programme Lead · Lighthouse Partners',
   accountType: 'org_staff',
   orgName: 'Lighthouse Partners',
+};
+
+const COACH_DEMO_USER: User = {
+  id: 'coach-demo',
+  name: 'Sarah Mitchell',
+  email: COACH_DEMO_CREDENTIALS.email,
+  role: 'Career Coach · Demo Account',
+  accountType: 'coach',
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -73,9 +86,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       normalizedEmail === ORG_DEMO_CREDENTIALS.email &&
       password === ORG_DEMO_CREDENTIALS.password;
 
-    if (!isDemoAccount && !isOrgDemoAccount) return false;
+    const isCoachAccount =
+      normalizedEmail === COACH_DEMO_CREDENTIALS.email &&
+      password === COACH_DEMO_CREDENTIALS.password;
 
-    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : DEMO_USER;
+    if (!isDemoAccount && !isOrgDemoAccount && !isCoachAccount) return false;
+
+    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : isCoachAccount ? COACH_DEMO_USER : DEMO_USER;
 
     setUser(loggedInUser);
     localStorage.setItem('vernon_user', JSON.stringify(loggedInUser));
