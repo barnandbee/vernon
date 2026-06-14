@@ -108,46 +108,6 @@ export const APPOINTMENTS: Appointment[] = [
   { id: 4, clientId: 'jamie-rivera', clientName: 'Jamie Rivera', title: 'Onboarding Review', day: 3, time: '9:00 AM', duration: '45 min', type: 'online', status: 'completed' },
 ];
 
-export type ResourceType = 'Article' | 'Video' | 'Toolkit' | 'Podcast';
-
-export type Resource = {
-  id: string;
-  title: string;
-  type: ResourceType;
-  tags: string[];
-  summary: string;
-  duration: string;
-};
-
-export const RESOURCE_LIBRARY: Resource[] = [
-  { id: 'r1', title: 'Navigating Career Transitions in Your 30s', type: 'Article', tags: ['transition', 'pivot', 'confidence'], summary: 'Reframing a career change as a strength, with a practical first-90-days plan.', duration: '5 min read' },
-  { id: 'r2', title: 'Building a Personal Brand That Opens Doors', type: 'Article', tags: ['visibility', 'branding', 'leadership'], summary: 'How to build recognition for strengths inside and outside the organisation.', duration: '7 min read' },
-  { id: 'r3', title: 'How to Ask for the Promotion You Deserve', type: 'Article', tags: ['negotiation', 'promotion', 'pay'], summary: 'Scripts and structures for raising pay and scope conversations with confidence.', duration: '4 min read' },
-  { id: 'r4', title: 'The STAR Method for Interview Storytelling', type: 'Toolkit', tags: ['interview', 'confidence', 'storytelling'], summary: 'A worksheet for structuring compelling answers to behavioural questions.', duration: '20 min' },
-  { id: 'r5', title: 'Reframing Imposter Syndrome', type: 'Video', tags: ['confidence', 'imposter syndrome', 'mindset', 'leadership'], summary: 'A short talk on noticing and challenging self-doubt in high-stakes moments.', duration: '12 min' },
-  { id: 'r6', title: 'Values & Motivators Card Sort', type: 'Toolkit', tags: ['exploration', 'values', 'pivot'], summary: 'A printable card sort to help clients articulate what "good work" means to them.', duration: '25 min' },
-  { id: 'r7', title: 'Returning to Work After a Career Break', type: 'Podcast', tags: ['returner', 'confidence', 'transition'], summary: 'Three returners share how they rebuilt confidence and momentum.', duration: '32 min' },
-  { id: 'r8', title: 'Resilience Through Change Workbook', type: 'Toolkit', tags: ['resilience', 'pivot', 'wellbeing'], summary: 'Tools for staying grounded through uncertainty and setbacks.', duration: '20 min' },
-  { id: 'r9', title: 'Negotiating Your Next Role', type: 'Article', tags: ['negotiation', 'pay', 'promotion'], summary: 'Pay, scope, flexibility, and getting the timing right.', duration: '6 min read' },
-  { id: 'r10', title: 'Mock Interview Question Bank', type: 'Toolkit', tags: ['interview', 'practice', 'confidence'], summary: 'A bank of behavioural and technical questions, organised by role family.', duration: '15 min' },
-];
-
-// Naive keyword match across title, summary and tags — a stand-in for an
-// AI search step over the resource library.
-export function searchResources(query: string): Resource[] {
-  const words = query.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 2);
-
-  const scored = RESOURCE_LIBRARY.map((resource) => {
-    const haystack = [resource.title, resource.summary, ...resource.tags].join(' ').toLowerCase();
-    const score = words.reduce((acc, word) => acc + (haystack.includes(word) ? 1 : 0), 0);
-    return { resource, score };
-  });
-
-  const matched = scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score).map((s) => s.resource);
-
-  return matched.length > 0 ? matched.slice(0, 4) : RESOURCE_LIBRARY.slice(0, 3);
-}
-
 export type CpdItemType = 'Document' | 'Course' | 'Webinar';
 export type CpdStatus = 'completed' | 'in_progress' | 'not_started';
 

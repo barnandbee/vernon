@@ -1,111 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Search, BookOpen, Video, Headphones, Layers, Clock, Tag, ChevronRight, Bookmark, TrendingUp } from 'lucide-react';
+import { Search, Clock, Tag, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Layers, History, UserRound } from 'lucide-react';
+import { RESOURCE_LIBRARY, TYPE_META, type LibraryResource, type ResourceType } from '@/lib/resourceLibrary';
+import {
+  getBookmarks, toggleBookmark, getAssignedResources, getActivityHistory, logActivity,
+  type ActivityEntry, type AssignedResource, type ActivityAction,
+} from '@/lib/library';
+import ResourceModal from '@/components/ResourceModal';
 
-type ResourceFormat = 'article' | 'video' | 'podcast';
-
-type Resource = {
-  id: number;
-  format: ResourceFormat;
-  title: string;
-  excerpt: string;
-  tag: string;
-  mins: number;
-  featured?: boolean;
-  author: string;
-  date: string;
-};
+// The demo member account is Jamie Rivera, matching CLIENTS[0] in coachData.
+const MEMBER_CLIENT_ID = 'jamie-rivera';
 
 const CATEGORIES = ['All', 'Career Change', 'Leadership', 'Networking', 'Work-Life Balance', 'Salary & Negotiation', 'Skills', 'Resilience'];
 
-const TYPE_TABS: { key: 'all' | ResourceFormat; label: string; icon: LucideIcon }[] = [
+const TYPE_TABS: { key: 'all' | ResourceType; label: string; icon: LucideIcon }[] = [
   { key: 'all', label: 'All', icon: Layers },
-  { key: 'article', label: 'Articles', icon: BookOpen },
-  { key: 'video', label: 'Videos', icon: Video },
-  { key: 'podcast', label: 'Podcasts', icon: Headphones },
-];
-
-const FORMAT_META: Record<ResourceFormat, { label: string; icon: LucideIcon; verb: string }> = {
-  article: { label: 'Article', icon: BookOpen, verb: 'read' },
-  video: { label: 'Video', icon: Video, verb: 'watch' },
-  podcast: { label: 'Podcast', icon: Headphones, verb: 'listen' },
-};
-
-const RESOURCES: Resource[] = [
-  {
-    id: 1, format: 'article', title: 'Navigating Career Transitions in Your 30s',
-    excerpt: 'Practical strategies for making a meaningful career pivot while managing risk and maintaining momentum.',
-    tag: 'Career Change', mins: 5, featured: true,
-    author: 'Dr. Sarah Mitchell', date: 'Jun 5, 2026',
-  },
-  {
-    id: 2, format: 'article', title: 'Building a Personal Brand That Opens Doors',
-    excerpt: 'How to craft an authentic professional identity that attracts the right opportunities.',
-    tag: 'Networking', mins: 7,
-    author: 'James Park', date: 'Jun 2, 2026',
-  },
-  {
-    id: 3, format: 'article', title: 'How to Ask for the Promotion You Deserve',
-    excerpt: 'A step-by-step guide to preparing your case, timing the conversation, and handling objections.',
-    tag: 'Salary & Negotiation', mins: 4,
-    author: 'Lisa Chen', date: 'May 28, 2026',
-  },
-  {
-    id: 4, format: 'article', title: 'The Introvert\'s Guide to Powerful Networking',
-    excerpt: 'Reframe networking as relationship-building and discover strategies that suit your natural style.',
-    tag: 'Networking', mins: 6,
-    author: 'Mark Davies', date: 'May 24, 2026',
-  },
-  {
-    id: 5, format: 'article', title: 'Leading Without Authority: Influence at Every Level',
-    excerpt: 'How to drive change and inspire teams even when you don\'t hold a formal leadership title.',
-    tag: 'Leadership', mins: 8,
-    author: 'Dr. Aisha Patel', date: 'May 20, 2026',
-  },
-  {
-    id: 6, format: 'article', title: 'Setting Boundaries Without Burning Bridges',
-    excerpt: 'Communicate your limits at work in ways that build respect rather than resentment.',
-    tag: 'Work-Life Balance', mins: 5,
-    author: 'Tom Hargreaves', date: 'May 15, 2026',
-  },
-  {
-    id: 7, format: 'video', title: 'Reframing Setbacks as Data, Not Verdicts',
-    excerpt: 'A short watch on treating setbacks as information rather than a verdict on your ability — with simple reframes you can use straight away.',
-    tag: 'Resilience', mins: 12,
-    author: 'Dr. Aisha Patel', date: 'Jun 8, 2026',
-  },
-  {
-    id: 8, format: 'video', title: 'Inside a Real Salary Negotiation (Roleplay)',
-    excerpt: 'Watch a coach and client roleplay a negotiation conversation from opening to close, including the awkward pauses.',
-    tag: 'Salary & Negotiation', mins: 18,
-    author: 'Lisa Chen', date: 'Jun 1, 2026',
-  },
-  {
-    id: 9, format: 'video', title: 'Five Body Language Tips for Interviews',
-    excerpt: 'Quick, practical adjustments that help you come across as calm and confident on camera or in person.',
-    tag: 'Skills', mins: 8,
-    author: 'Mark Davies', date: 'May 22, 2026',
-  },
-  {
-    id: 10, format: 'podcast', title: 'The Portfolio Career: Myth or Model?',
-    excerpt: "Two coaches debate whether 'portfolio careers' are a realistic option or just a rebrand of job insecurity.",
-    tag: 'Career Change', mins: 34,
-    author: 'Vernon Conversations', date: 'Jun 6, 2026',
-  },
-  {
-    id: 11, format: 'podcast', title: 'Negotiating Without Losing the Relationship',
-    excerpt: 'How to ask for more without damaging trust with your manager — practical scripts included.',
-    tag: 'Salary & Negotiation', mins: 28,
-    author: 'Vernon Conversations', date: 'May 30, 2026',
-  },
-  {
-    id: 12, format: 'podcast', title: 'Finding Your People: Networking for Introverts',
-    excerpt: "Why networking doesn't have to mean small talk, and what to do instead.",
-    tag: 'Networking', mins: 25,
-    author: 'Vernon Conversations', date: 'May 18, 2026',
-  },
+  { key: 'Article', label: 'Articles', icon: TYPE_META.Article.icon },
+  { key: 'Video', label: 'Videos', icon: TYPE_META.Video.icon },
+  { key: 'Podcast', label: 'Podcasts', icon: TYPE_META.Podcast.icon },
+  { key: 'Toolkit', label: 'Activities', icon: TYPE_META.Toolkit.icon },
 ];
 
 const TAG_COLORS: Record<string, { bg: string; color: string }> = {
@@ -118,16 +33,32 @@ const TAG_COLORS: Record<string, { bg: string; color: string }> = {
   'Resilience':          { bg: '#fef2f2', color: '#b91c1c' },
 };
 
+const ACTION_LABEL: Record<ActivityAction, string> = {
+  viewed: 'Viewed',
+  bookmarked: 'Bookmarked',
+  unbookmarked: 'Bookmark removed',
+};
+
 export default function ArticlesPage() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
-  const [activeType, setActiveType] = useState<'all' | ResourceFormat>('all');
+  const [activeType, setActiveType] = useState<'all' | ResourceType>('all');
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [assigned, setAssigned] = useState<AssignedResource[]>([]);
+  const [activity, setActivity] = useState<ActivityEntry[]>([]);
+  const [activeResource, setActiveResource] = useState<LibraryResource | null>(null);
 
-  const filtered = RESOURCES.filter((r) => {
+  useEffect(() => {
+    setBookmarks(getBookmarks());
+    setAssigned(getAssignedResources());
+    setActivity(getActivityHistory());
+  }, []);
+
+  const filtered = RESOURCE_LIBRARY.filter((r) => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) ||
-      r.excerpt.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = activeCategory === 'All' || r.tag === activeCategory;
-    const matchesType = activeType === 'all' || r.format === activeType;
+      r.summary.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = activeCategory === 'All' || r.category === activeCategory;
+    const matchesType = activeType === 'all' || r.type === activeType;
     return matchesSearch && matchesCategory && matchesType;
   });
 
@@ -135,15 +66,97 @@ export default function ArticlesPage() {
   const showFeatured = !search && activeCategory === 'All' && activeType === 'all' && !!featured;
   const gridItems = showFeatured ? filtered.filter((r) => !r.featured) : filtered;
 
+  const assignedResources = assigned
+    .filter((a) => a.clientId === MEMBER_CLIENT_ID)
+    .map((a) => ({ assignment: a, resource: RESOURCE_LIBRARY.find((r) => r.id === a.resourceId) }))
+    .filter((x): x is { assignment: AssignedResource; resource: LibraryResource } => !!x.resource);
+
+  const bookmarkedResources = bookmarks
+    .map((id) => RESOURCE_LIBRARY.find((r) => r.id === id))
+    .filter((r): r is LibraryResource => !!r);
+
+  const openResource = (resource: LibraryResource) => {
+    setActiveResource(resource);
+    setActivity(logActivity(resource.id, resource.title, resource.type, 'viewed'));
+  };
+
+  const handleToggleBookmark = (resource: LibraryResource) => {
+    const updated = toggleBookmark(resource.id);
+    setBookmarks(updated);
+    setActivity(logActivity(resource.id, resource.title, resource.type, updated.includes(resource.id) ? 'bookmarked' : 'unbookmarked'));
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Resources</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-          Articles, videos, and podcasts curated to fuel your career growth
+          Articles, videos, podcasts and activities curated to fuel your career growth
         </p>
       </div>
+
+      {/* Assigned by your coach */}
+      {assignedResources.length > 0 && (
+        <div className="rounded-2xl p-5" style={{ background: '#e8f4f8' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <UserRound size={16} style={{ color: 'var(--primary)' }} />
+            <h2 className="font-semibold text-sm" style={{ color: 'var(--primary)' }}>Assigned by your coach</h2>
+          </div>
+          <div className="space-y-2">
+            {assignedResources.map(({ assignment, resource }) => {
+              const meta = TYPE_META[resource.type];
+              const Icon = meta.icon;
+              return (
+                <button
+                  key={assignment.id}
+                  onClick={() => openResource(resource)}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
+                  style={{ background: 'var(--surface)' }}
+                >
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: meta.bg }}>
+                    <Icon size={16} style={{ color: meta.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--foreground)' }}>{resource.title}</p>
+                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Assigned {assignment.assignedAt} · to {meta.verb}</p>
+                  </div>
+                  <ChevronRight size={16} className="flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Saved for later */}
+      {bookmarkedResources.length > 0 && (
+        <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <BookmarkCheck size={16} style={{ color: 'var(--primary)' }} />
+            <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Saved for Later</h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {bookmarkedResources.map((resource) => {
+              const meta = TYPE_META[resource.type];
+              const Icon = meta.icon;
+              return (
+                <button
+                  key={resource.id}
+                  onClick={() => openResource(resource)}
+                  className="flex-shrink-0 w-48 text-left rounded-xl p-3"
+                  style={{ background: 'var(--surface-muted)' }}
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: meta.bg }}>
+                    <Icon size={14} style={{ color: meta.color }} />
+                  </div>
+                  <p className="text-xs font-medium leading-snug line-clamp-2" style={{ color: 'var(--foreground)' }}>{resource.title}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -196,8 +209,9 @@ export default function ArticlesPage() {
 
       {/* Featured resource */}
       {showFeatured && featured && (
-        <div
-          className="rounded-2xl overflow-hidden cursor-pointer group"
+        <button
+          onClick={() => openResource(featured)}
+          className="w-full text-left rounded-2xl overflow-hidden cursor-pointer group"
           style={{ background: 'var(--primary)' }}
         >
           <div className="p-6 sm:p-8">
@@ -208,38 +222,39 @@ export default function ArticlesPage() {
             <h2 className="text-white text-xl sm:text-2xl font-bold mb-3 leading-snug">
               {featured.title}
             </h2>
-            <p className="text-white/70 text-sm mb-5 leading-relaxed max-w-2xl">{featured.excerpt}</p>
+            <p className="text-white/70 text-sm mb-5 leading-relaxed max-w-2xl">{featured.summary}</p>
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <span
                   className="text-xs px-2.5 py-1 rounded-lg font-medium"
                   style={{ background: 'rgba(255,255,255,0.15)', color: '#fff' }}
                 >
-                  {featured.tag}
+                  {featured.category}
                 </span>
                 <div className="flex items-center gap-1 text-white/60 text-xs">
                   <Clock size={12} />
-                  <span>{featured.mins} min {FORMAT_META[featured.format].verb}</span>
+                  <span>{featured.mins} min {TYPE_META[featured.type].verb}</span>
                 </div>
               </div>
-              <button
-                className="flex items-center gap-1 text-sm font-semibold text-white/90 group-hover:text-white"
-              >
+              <span className="flex items-center gap-1 text-sm font-semibold text-white/90 group-hover:text-white">
                 Read article <ChevronRight size={14} />
-              </button>
+              </span>
             </div>
           </div>
-        </div>
+        </button>
       )}
 
       {/* Resource grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {gridItems.map((resource) => {
-          const tagStyle = TAG_COLORS[resource.tag] || { bg: '#f3f4f6', color: '#374151' };
-          const FormatIcon = FORMAT_META[resource.format].icon;
+          const tagStyle = TAG_COLORS[resource.category] || { bg: '#f3f4f6', color: '#374151' };
+          const meta = TYPE_META[resource.type];
+          const FormatIcon = meta.icon;
+          const isBookmarked = bookmarks.includes(resource.id);
           return (
             <div
               key={resource.id}
+              onClick={() => openResource(resource)}
               className="rounded-2xl p-5 cursor-pointer group flex flex-col"
               style={{ background: 'var(--surface)' }}
             >
@@ -250,8 +265,13 @@ export default function ArticlesPage() {
                 >
                   <FormatIcon size={18} style={{ color: tagStyle.color }} />
                 </div>
-                <button style={{ color: 'var(--text-muted)' }} className="p-1 hover:text-current">
-                  <Bookmark size={15} />
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleToggleBookmark(resource); }}
+                  style={{ color: isBookmarked ? 'var(--primary)' : 'var(--text-muted)' }}
+                  className="p-1 hover:text-current"
+                  aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark for later'}
+                >
+                  {isBookmarked ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
                 </button>
               </div>
 
@@ -259,7 +279,7 @@ export default function ArticlesPage() {
                 {resource.title}
               </h3>
               <p className="text-xs leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
-                {resource.excerpt}
+                {resource.summary}
               </p>
 
               <div className="flex items-center justify-between gap-2 mt-auto flex-wrap">
@@ -268,14 +288,14 @@ export default function ArticlesPage() {
                     className="text-xs px-2 py-0.5 rounded-md font-medium"
                     style={{ background: tagStyle.bg, color: tagStyle.color }}
                   >
-                    {resource.tag}
+                    {resource.category}
                   </span>
                   <span
                     className="text-xs px-2 py-0.5 rounded-md font-medium inline-flex items-center gap-1"
                     style={{ background: 'var(--surface-muted)', color: 'var(--text-muted)' }}
                   >
                     <FormatIcon size={11} />
-                    {FORMAT_META[resource.format].label}
+                    {meta.label}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
@@ -302,6 +322,63 @@ export default function ArticlesPage() {
           <p className="font-medium" style={{ color: 'var(--foreground)' }}>No resources found</p>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Try a different search, format, or category</p>
         </div>
+      )}
+
+      {/* Activity history */}
+      <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <History size={16} style={{ color: 'var(--primary)' }} />
+          <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Activity History</h2>
+        </div>
+        {activity.length > 0 ? (
+          <div className="space-y-2">
+            {activity.slice(0, 8).map((entry) => {
+              const meta = TYPE_META[entry.type];
+              const Icon = meta.icon;
+              return (
+                <div key={entry.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--surface-muted)' }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: meta.bg }}>
+                    <Icon size={14} style={{ color: meta.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm truncate" style={{ color: 'var(--foreground)' }}>{entry.title}</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <span>{ACTION_LABEL[entry.action]}</span>
+                    <span>{entry.date}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            Resources you view or bookmark will show up here.
+          </p>
+        )}
+      </div>
+
+      {/* Resource detail modal */}
+      {activeResource && (
+        <ResourceModal
+          resource={activeResource}
+          onClose={() => setActiveResource(null)}
+          footer={
+            <button
+              onClick={() => handleToggleBookmark(activeResource)}
+              className="w-full flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl"
+              style={bookmarks.includes(activeResource.id)
+                ? { background: 'var(--primary)', color: '#fff' }
+                : { background: 'var(--surface-muted)', color: 'var(--foreground)' }
+              }
+            >
+              {bookmarks.includes(activeResource.id)
+                ? <><BookmarkCheck size={16} /> Saved for later</>
+                : <><Bookmark size={16} /> Save for later</>
+              }
+            </button>
+          }
+        />
       )}
     </div>
   );
