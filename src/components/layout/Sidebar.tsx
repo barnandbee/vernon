@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { normalizePathname } from '@/lib/utils';
 import VernonLogo from '@/components/VernonLogo';
@@ -8,9 +9,11 @@ import {
   LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, LogOut, ChevronRight, Sparkles
 } from 'lucide-react';
 
-const MEMBER_NAV = [
+type NavItem = { href: string; icon: LucideIcon; label: string; badge?: boolean };
+
+const MEMBER_NAV: NavItem[] = [
   { href: '/dashboard',             icon: LayoutDashboard, label: 'Home' },
-  { href: '/dashboard/journey',     icon: Compass,         label: 'My Journey' },
+  { href: '/dashboard/journey',     icon: Compass,         label: 'My Journey', badge: true },
   { href: '/dashboard/calendar',    icon: CalendarDays,    label: 'Coaching Calendar' },
   { href: '/dashboard/learning',    icon: GraduationCap,   label: 'Learning' },
   { href: '/dashboard/articles',    icon: BookOpen,        label: 'Resources' },
@@ -20,11 +23,11 @@ const MEMBER_NAV = [
   { href: '/dashboard/chat',        icon: MessageCircle,   label: 'Career Chat' },
 ];
 
-const ORG_STAFF_NAV = [
+const ORG_STAFF_NAV: NavItem[] = [
   { href: '/dashboard', icon: Building2, label: 'Organisation Dashboard' },
 ];
 
-const COACH_NAV = [
+const COACH_NAV: NavItem[] = [
   { href: '/dashboard',            icon: LayoutDashboard, label: 'Coach Home' },
   { href: '/dashboard/clients',    icon: Users,           label: 'My Clients' },
   { href: '/dashboard/schedule',   icon: CalendarDays,    label: 'Schedule' },
@@ -61,7 +64,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {NAV.map(({ href, icon: Icon, label }) => {
+        {NAV.map(({ href, icon: Icon, label, badge }) => {
           const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
           return (
             <button
@@ -75,7 +78,10 @@ export default function Sidebar() {
                 color: 'var(--text-muted)',
               }}
             >
-              <Icon size={18} />
+              <span className="relative inline-flex">
+                <Icon size={18} />
+                {badge && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full" style={{ background: '#ef4444' }} />}
+              </span>
               <span className="flex-1 text-left">{label}</span>
               {active && <ChevronRight size={14} />}
             </button>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
-import { Lightbulb, Plus, ChevronRight, Sparkles, CheckCircle2, Clock, Lock, UserRound } from 'lucide-react';
+import { Lightbulb, Plus, ChevronRight, Sparkles, CheckCircle2, Clock, Lock, UserRound, Sun } from 'lucide-react';
 
 type Prompt = {
   id: number;
@@ -58,6 +58,15 @@ const PROMPTS: Prompt[] = [
   },
 ];
 
+// A standalone, open-ended prompt that isn't tied to any category — for days
+// when something's on your mind that doesn't fit a coach- or AI-curated topic.
+const DAILY_PROMPT: Prompt = {
+  id: 0,
+  category: 'Daily',
+  question: "What's on your mind about your career today — no filter needed?",
+  context: 'This one is intentionally open. A worry, an idea, a memory, a question — write whatever comes up, in whatever shape it takes.',
+};
+
 const PAST_REFLECTIONS = [
   {
     date: 'Jun 5, 2026',
@@ -79,6 +88,7 @@ const CAT_COLORS: Record<string, { bg: string; color: string }> = {
   'Strengths':         { bg: '#f0fdf4', color: '#15803d' },
   'Goals':             { bg: '#eff6ff', color: '#1d4ed8' },
   'Coaching Follow-up':{ bg: '#e8f4f8', color: 'var(--primary)' },
+  'Daily':             { bg: '#ecfeff', color: '#0e7490' },
 };
 
 export default function ReflectionsPage() {
@@ -178,6 +188,24 @@ export default function ReflectionsPage() {
           Deepen your self-awareness through guided prompts
         </p>
       </div>
+
+      {/* Reflection Prompt of the Day */}
+      <button
+        onClick={() => setActivePrompt(DAILY_PROMPT)}
+        className="w-full text-left rounded-2xl p-5 flex items-center gap-4 flex-wrap transition-all hover:scale-[1.01]"
+        style={{ background: CAT_COLORS['Daily'].bg }}
+      >
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'var(--surface)' }}>
+          <Sun size={20} style={{ color: CAT_COLORS['Daily'].color }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: CAT_COLORS['Daily'].color }}>
+            Reflection Prompt of the Day
+          </span>
+          <p className="text-sm font-medium mt-1" style={{ color: 'var(--foreground)' }}>{DAILY_PROMPT.question}</p>
+        </div>
+        <ChevronRight size={18} className="flex-shrink-0" style={{ color: CAT_COLORS['Daily'].color }} />
+      </button>
 
       {/* Coach-curated note */}
       <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: '#e8f4f8' }}>

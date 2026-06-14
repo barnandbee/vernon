@@ -5,9 +5,10 @@ import { useAuth } from '@/lib/auth';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import OrganisationDashboard from './OrganisationDashboard';
 import CoachDashboard from './CoachDashboard';
+import { ACTION_ITEMS, SESSION_NOTES, QUICK_WINS } from './journeyData';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle,
-  TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target, Heart
+  TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target, Heart, Bell
 } from 'lucide-react';
 
 const QUICK_ACTIONS = [
@@ -86,6 +87,8 @@ export default function DashboardPage() {
     return <CoachDashboard />;
   }
 
+  const openCoachItems = ACTION_ITEMS.filter((a) => a.source === 'coach' && a.status !== 'done').length;
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
       {/* Welcome header */}
@@ -105,6 +108,26 @@ export default function DashboardPage() {
           <Star size={14} className="fill-current" />
           <span>7-day streak</span>
         </div>
+      </div>
+
+      {/* Coach update notification */}
+      <div className="rounded-2xl p-5 flex items-center gap-4 flex-wrap" style={{ background: '#e8f4f8' }}>
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'var(--surface)' }}>
+          <Bell size={20} style={{ color: 'var(--primary)' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Sarah has updated your journey</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {openCoachItems} action item{openCoachItems === 1 ? '' : 's'} from your coach, {SESSION_NOTES.length} session notes, and {QUICK_WINS.length} quick wins are waiting for you.
+          </p>
+        </div>
+        <button
+          onClick={() => router.push('/dashboard/journey')}
+          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
+          style={{ background: 'var(--primary)' }}
+        >
+          View My Journey <ArrowRight size={12} />
+        </button>
       </div>
 
       {/* Progress bar */}

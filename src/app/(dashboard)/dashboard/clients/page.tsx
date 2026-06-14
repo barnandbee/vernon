@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CLIENTS, type Client } from '../coachData';
+import { getSharedNotes, type SharedNote } from '@/lib/sharedNotes';
 import {
-  CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare,
+  CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare, NotebookPen,
 } from 'lucide-react';
 
 export default function ClientsPage() {
@@ -12,9 +13,15 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>(CLIENTS);
   const [selectedId, setSelectedId] = useState<string>(CLIENTS[0].id);
   const [newItemText, setNewItemText] = useState('');
+  const [sharedNotes, setSharedNotes] = useState<SharedNote[]>([]);
+
+  useEffect(() => {
+    setSharedNotes(getSharedNotes());
+  }, []);
 
   const selected = clients.find((c) => c.id === selectedId) ?? clients[0];
   const doneCount = selected.actionPlan.filter((i) => i.done).length;
+  const clientNotes = sharedNotes.filter((n) => n.clientId === selected.id);
 
   const toggleItem = (itemId: string) => {
     setClients((prev) => prev.map((c) => c.id !== selected.id ? c : {
@@ -143,6 +150,28 @@ export default function ClientsPage() {
               <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Coach Notes</h2>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{selected.note}</p>
+          </div>
+
+          {/* Notes shared by the client from My Journey */}
+          <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <NotebookPen size={16} style={{ color: 'var(--primary)' }} />
+              <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Notes from {selected.name.split(' ')[0]}</h2>
+            </div>
+            {clientNotes.length > 0 ? (
+              <div className="space-y-2">
+                {clientNotes.map((note) => (
+                  <div key={note.id} className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>{note.text}</p>
+                    <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>Shared {note.createdAt}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                Nothing shared yet — notes {selected.name.split(' ')[0]} sends from My Journey will appear here before your next session.
+              </p>
+            )}
           </div>
 
           {/* Action plan */}
