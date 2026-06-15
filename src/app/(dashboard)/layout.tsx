@@ -7,7 +7,8 @@ import { normalizePathname } from '@/lib/utils';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 
-const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources', '/dashboard/development'];
+const ORG_STAFF_ROUTES = ['/dashboard', '/dashboard/profile'];
+const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources', '/dashboard/development', '/dashboard/profile'];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -24,7 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // coaches only have access to their coaching-focused set of pages.
   useEffect(() => {
     if (isLoading) return;
-    if (user?.accountType === 'org_staff' && pathname !== '/dashboard') {
+    if (user?.accountType === 'org_staff' && !ORG_STAFF_ROUTES.includes(pathname)) {
       router.replace('/dashboard');
     } else if (user?.accountType === 'coach' && !COACH_ROUTES.includes(pathname)) {
       router.replace('/dashboard');

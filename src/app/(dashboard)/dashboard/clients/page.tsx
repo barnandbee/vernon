@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CLIENTS, type Client } from '../coachData';
 import { getSharedNotes, type SharedNote } from '@/lib/sharedNotes';
 import {
-  CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare, NotebookPen, Bot,
+  CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare, NotebookPen, Bot, Pencil, Save, Check, X,
 } from 'lucide-react';
 
 export default function ClientsPage() {
@@ -14,6 +14,12 @@ export default function ClientsPage() {
   const [selectedId, setSelectedId] = useState<string>(CLIENTS[0].id);
   const [newItemText, setNewItemText] = useState('');
   const [sharedNotes, setSharedNotes] = useState<SharedNote[]>([]);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [itemEditText, setItemEditText] = useState('');
+  const [editingNote, setEditingNote] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [editingInsightId, setEditingInsightId] = useState<string | null>(null);
+  const [insightTexts, setInsightTexts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setSharedNotes(getSharedNotes());
@@ -40,12 +46,44 @@ export default function ClientsPage() {
     setNewItemText('');
   };
 
-  const addInsightToActionPlan = (insight: Client['transcriptInsights'][number]) => {
+  const addInsightToActionPlan = (insight: Client['transcriptInsights'][number], text: string) => {
     const itemId = `${selected.id}-ai-${insight.id}`;
     setClients((prev) => prev.map((c) => c.id !== selected.id ? c : {
       ...c,
-      actionPlan: [...c.actionPlan, { id: itemId, text: insight.text, done: false }],
+      actionPlan: [...c.actionPlan, { id: itemId, text, done: false }],
     }));
+  };
+
+  const startEditItem = (item: { id: string; text: string }) => {
+    setEditingItemId(item.id);
+    setItemEditText(item.text);
+  };
+
+  const cancelEditItem = () => {
+    setEditingItemId(null);
+    setItemEditText('');
+  };
+
+  const saveEditItem = () => {
+    if (!editingItemId) return;
+    const text = itemEditText.trim();
+    if (!text) { cancelEditItem(); return; }
+    setClients((prev) => prev.map((c) => c.id !== selected.id ? c : {
+      ...c,
+      actionPlan: c.actionPlan.map((i) => i.id === editingItemId ? { ...i, text } : i),
+    }));
+    cancelEditItem();
+  };
+
+  const startEditNote = () => {
+    setNoteText(selected.note);
+    setEditingNote(true);
+  };
+
+  const saveNote = () => {
+    const text = noteText.trim();
+    setClients((prev) => prev.map((c) => c.id !== selected.id ? c : { ...c, note: text || c.note }));
+    setEditingNote(false);
   };
 
   return (
@@ -153,11 +191,39 @@ export default function ClientsPage() {
 
           {/* Coach notes */}
           <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
-            <div className="flex items-center gap-2 mb-2">
-              <MessageSquare size={16} style={{ color: 'var(--primary)' }} />
-              <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Coach Notes</h2>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <MessageSquare size={16} style={{ color: 'var(--primary)' }} />
+                <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Coach Notes</h2>
+              </div>
+              {!editingNote && (
+                <button onClick={startEditNote} aria-label="Edit coach notes" style={{ color: 'var(--text-muted)' }}>
+                  <Pencil size={14} />
+                </button>
+              )}
             </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{selected.note}</p>
+            {editingNote ? (
+              <div className="space-y-2">
+                <textarea
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-xl border text-sm outline-none resize-none"
+                  style={{ background: 'var(--surface-muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  autoFocus
+                />
+                <div className="flex items-center gap-2">
+                  <button onClick={saveNote} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: 'var(--primary)' }}>
+                    <Save size={13} /> Save
+                  </button>
+                  <button onClick={() => setEditingNote(false)} className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{ color: 'var(--text-muted)' }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{selected.note}</p>
+            )}
           </div>
 
           {/* Notes shared by the client from My Journey */}
@@ -194,18 +260,42 @@ export default function ClientsPage() {
             <div className="space-y-2">
               {selected.transcriptInsights.map((insight) => {
                 const added = selected.actionPlan.some((i) => i.id === `${selected.id}-ai-${insight.id}`);
+                const isEditing = editingInsightId === insight.id;
+                const currentText = insightTexts[insight.id] ?? insight.text;
                 return (
                   <div key={insight.id} className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
                     <p className="text-xs italic mb-2 leading-relaxed" style={{ color: 'var(--text-muted)' }}>&ldquo;{insight.quote}&rdquo;</p>
-                    <p className="text-sm mb-3" style={{ color: 'var(--foreground)' }}>{insight.text}</p>
-                    <button
-                      onClick={() => addInsightToActionPlan(insight)}
-                      disabled={added}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                      style={added ? { background: '#f0fdf4', color: '#15803d' } : { background: '#f5f3ff', color: '#7c3aed' }}
-                    >
-                      {added ? <><CheckCircle2 size={13} /> Added to action plan</> : <><Plus size={13} /> Add to action plan</>}
-                    </button>
+                    {isEditing ? (
+                      <input
+                        value={currentText}
+                        onChange={(e) => setInsightTexts((prev) => ({ ...prev, [insight.id]: e.target.value }))}
+                        onKeyDown={(e) => { if (e.key === 'Enter') setEditingInsightId(null); }}
+                        className="w-full text-sm mb-3 px-2.5 py-1.5 rounded-lg border outline-none"
+                        style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        autoFocus
+                      />
+                    ) : (
+                      <p className="text-sm mb-3" style={{ color: 'var(--foreground)' }}>{currentText}</p>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => addInsightToActionPlan(insight, currentText)}
+                        disabled={added}
+                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                        style={added ? { background: '#f0fdf4', color: '#15803d' } : { background: '#f5f3ff', color: '#7c3aed' }}
+                      >
+                        {added ? <><CheckCircle2 size={13} /> Added to action plan</> : <><Plus size={13} /> Add to action plan</>}
+                      </button>
+                      {!added && (
+                        <button
+                          onClick={() => setEditingInsightId(isEditing ? null : insight.id)}
+                          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                          style={{ background: 'var(--surface)', color: 'var(--text-muted)' }}
+                        >
+                          {isEditing ? <><Check size={13} /> Done</> : <><Pencil size={13} /> Edit</>}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -225,25 +315,50 @@ export default function ClientsPage() {
               />
             </div>
             <div className="space-y-2 mb-4">
-              {selected.actionPlan.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => toggleItem(item.id)}
-                  className="w-full flex items-start gap-3 p-3 rounded-xl text-left"
-                  style={{ background: 'var(--surface-muted)' }}
-                >
-                  {item.done
-                    ? <CheckCircle2 size={18} className="flex-shrink-0 mt-0.5" style={{ color: '#15803d' }} />
-                    : <Circle size={18} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--text-muted)' }} />
-                  }
-                  <span
-                    className="text-sm"
-                    style={{ color: item.done ? 'var(--text-muted)' : 'var(--foreground)', textDecoration: item.done ? 'line-through' : 'none' }}
-                  >
-                    {item.text}
-                  </span>
-                </button>
-              ))}
+              {selected.actionPlan.map((item) => {
+                const isEditing = editingItemId === item.id;
+                return (
+                  <div key={item.id} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: 'var(--surface-muted)' }}>
+                    <button onClick={() => toggleItem(item.id)} className="flex-shrink-0 mt-0.5" aria-label="Toggle done">
+                      {item.done
+                        ? <CheckCircle2 size={18} style={{ color: '#15803d' }} />
+                        : <Circle size={18} style={{ color: 'var(--text-muted)' }} />
+                      }
+                    </button>
+                    {isEditing ? (
+                      <input
+                        value={itemEditText}
+                        onChange={(e) => setItemEditText(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') saveEditItem(); if (e.key === 'Escape') cancelEditItem(); }}
+                        className="flex-1 text-sm px-2 py-1 rounded-lg border outline-none"
+                        style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span
+                        className="flex-1 text-sm"
+                        style={{ color: item.done ? 'var(--text-muted)' : 'var(--foreground)', textDecoration: item.done ? 'line-through' : 'none' }}
+                      >
+                        {item.text}
+                      </span>
+                    )}
+                    {isEditing ? (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button onClick={saveEditItem} aria-label="Save" style={{ color: 'var(--primary)' }}>
+                          <Check size={15} />
+                        </button>
+                        <button onClick={cancelEditItem} aria-label="Cancel" style={{ color: 'var(--text-muted)' }}>
+                          <X size={15} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={() => startEditItem(item)} className="flex-shrink-0" aria-label="Edit action item" style={{ color: 'var(--text-muted)' }}>
+                        <Pencil size={14} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             <div className="flex items-center gap-2">
               <input

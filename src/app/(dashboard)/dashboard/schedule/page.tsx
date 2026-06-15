@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { APPOINTMENTS, CLIENTS } from '../coachData';
-import { ChevronLeft, ChevronRight, Clock, Video, MapPin, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Video, MapPin, User, Plus, X } from 'lucide-react';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DURATIONS = ['30 min', '45 min', '60 min', '90 min'];
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   confirmed: { bg: '#f0fdf4', color: '#15803d', label: 'Confirmed' },
@@ -13,17 +14,27 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }>
   completed: { bg: 'var(--surface-muted)', color: 'var(--text-muted)', label: 'Completed' },
 };
 
+type AvailabilitySlot = { id: number; day: number; time: string; duration: string; type: 'online' | 'in-person' };
+
 export default function SchedulePage() {
   const [currentMonth, setCurrentMonth] = useState(5); // June
   const [currentYear, setCurrentYear] = useState(2026);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newDay, setNewDay] = useState(1);
+  const [newTime, setNewTime] = useState('');
+  const [newDuration, setNewDuration] = useState('60 min');
+  const [newType, setNewType] = useState<'online' | 'in-person'>('online');
 
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7; // Monday-indexed
 
   const appointmentDays = new Set(APPOINTMENTS.map((a) => a.day));
+  const availabilityDays = new Set(availability.map((a) => a.day));
   const selectedAppointments = selectedDay ? APPOINTMENTS.filter((a) => a.day === selectedDay) : [];
+  const selectedAvailability = selectedDay ? availability.filter((a) => a.day === selectedDay) : [];
 
   const prevMonth = () => {
     if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear((y) => y - 1); }
@@ -32,6 +43,21 @@ export default function SchedulePage() {
   const nextMonth = () => {
     if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear((y) => y + 1); }
     else setCurrentMonth((m) => m + 1);
+  };
+
+  const handleAddAvailability = () => {
+    const time = newTime.trim();
+    if (!time) return;
+    setAvailability((prev) => [
+      ...prev,
+      { id: prev.length ? Math.max(...prev.map((s) => s.id)) + 1 : 1, day: newDay, time, duration: newDuration, type: newType },
+    ]);
+    setNewTime('');
+    setShowAddForm(false);
+  };
+
+  const removeAvailability = (id: number) => {
+    setAvailability((prev) => prev.filter((s) => s.id !== id));
   };
 
   return (
@@ -44,22 +70,93 @@ export default function SchedulePage() {
         </p>
       </div>
 
-      {/* View toggle */}
-      <div className="flex items-center gap-2">
-        {(['calendar', 'list'] as const).map((v) => (
-          <button
-            key={v}
-            onClick={() => setView(v)}
-            className="px-4 py-1.5 rounded-lg text-sm font-medium capitalize transition-all"
-            style={view === v
-              ? { background: 'var(--primary)', color: '#fff' }
-              : { background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid var(--border)' }
-            }
-          >
-            {v === 'calendar' ? 'Calendar View' : 'List View'}
-          </button>
-        ))}
+      {/* View toggle + add availability */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          {(['calendar', 'list'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className="px-4 py-1.5 rounded-lg text-sm font-medium capitalize transition-all"
+              style={view === v
+                ? { background: 'var(--primary)', color: '#fff' }
+                : { background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid var(--border)' }
+              }
+            >
+              {v === 'calendar' ? 'Calendar View' : 'List View'}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => setShowAddForm((s) => !s)}
+          className="flex items-center gap-1.5 text-sm font-semibold px-4 py-1.5 rounded-lg text-white"
+          style={{ background: 'var(--primary)' }}
+        >
+          {showAddForm ? <><X size={15} /> Cancel</> : <><Plus size={15} /> Add availability</>}
+        </button>
       </div>
+
+      {/* Add availability form */}
+      {showAddForm && (
+        <div className="rounded-2xl p-5 space-y-4" style={{ background: 'var(--surface)' }}>
+          <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>New availability slot</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Day</label>
+              <select
+                value={newDay}
+                onChange={(e) => setNewDay(Number(e.target.value))}
+                className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none"
+                style={{ background: 'var(--surface-muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              >
+                {Array.from({ length: daysInMonth }).map((_, i) => (
+                  <option key={i + 1} value={i + 1}>{MONTHS[currentMonth]} {i + 1}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Time</label>
+              <input
+                value={newTime}
+                onChange={(e) => setNewTime(e.target.value)}
+                placeholder="e.g. 2:00 PM"
+                className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none"
+                style={{ background: 'var(--surface-muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Duration</label>
+              <select
+                value={newDuration}
+                onChange={(e) => setNewDuration(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none"
+                style={{ background: 'var(--surface-muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              >
+                {DURATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Session type</label>
+              <select
+                value={newType}
+                onChange={(e) => setNewType(e.target.value as 'online' | 'in-person')}
+                className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none"
+                style={{ background: 'var(--surface-muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              >
+                <option value="online">Online</option>
+                <option value="in-person">In-person</option>
+              </select>
+            </div>
+          </div>
+          <button
+            onClick={handleAddAvailability}
+            className="text-sm font-semibold px-4 py-2.5 rounded-xl text-white"
+            style={{ background: 'var(--primary)' }}
+          >
+            Add slot
+          </button>
+        </div>
+      )}
 
       {view === 'calendar' ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -93,6 +190,7 @@ export default function SchedulePage() {
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const day = i + 1;
                 const hasAppointment = appointmentDays.has(day);
+                const hasAvailability = availabilityDays.has(day);
                 const isSelected = selectedDay === day;
                 const isToday = day === 9 && currentMonth === 5 && currentYear === 2026;
 
@@ -109,11 +207,15 @@ export default function SchedulePage() {
                     }
                   >
                     {day}
-                    {hasAppointment && !isSelected && (
-                      <span
-                        className="absolute bottom-1 w-1.5 h-1.5 rounded-full"
-                        style={{ background: 'var(--primary)' }}
-                      />
+                    {!isSelected && (hasAppointment || hasAvailability) && (
+                      <span className="absolute bottom-1 flex items-center gap-0.5">
+                        {hasAppointment && (
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--primary)' }} />
+                        )}
+                        {hasAvailability && (
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4f46e5' }} />
+                        )}
+                      </span>
                     )}
                   </button>
                 );
@@ -125,6 +227,10 @@ export default function SchedulePage() {
               <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
                 <span className="w-2 h-2 rounded-full inline-block" style={{ background: 'var(--primary)' }} />
                 Scheduled session
+              </div>
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#4f46e5' }} />
+                Open availability
               </div>
             </div>
           </div>
@@ -169,6 +275,30 @@ export default function SchedulePage() {
                 ) : (
                   <div className="rounded-xl p-4 text-center" style={{ background: 'var(--surface)' }}>
                     <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No sessions on this day</p>
+                  </div>
+                )}
+
+                {selectedAvailability.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--foreground)' }}>Your availability</h3>
+                    <div className="space-y-3">
+                      {selectedAvailability.map((slot) => (
+                        <div key={slot.id} className="rounded-xl p-4 flex items-center justify-between gap-2"
+                          style={{ background: 'var(--surface)', border: '1px dashed var(--border)' }}>
+                          <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+                            <span className="flex items-center gap-1"><Clock size={11} />{slot.time}</span>
+                            <span>{slot.duration}</span>
+                            {slot.type === 'online'
+                              ? <span className="flex items-center gap-1"><Video size={11} />Online</span>
+                              : <span className="flex items-center gap-1"><MapPin size={11} />In-person</span>
+                            }
+                          </div>
+                          <button onClick={() => removeAvailability(slot.id)} aria-label="Remove availability" style={{ color: 'var(--text-muted)' }}>
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>
@@ -234,6 +364,41 @@ export default function SchedulePage() {
               </div>
             );
           })}
+
+          {availability.length > 0 && (
+            <>
+              <h3 className="font-semibold text-sm pt-2" style={{ color: 'var(--foreground)' }}>Your Availability</h3>
+              {[...availability].sort((a, b) => a.day - b.day).map((slot) => (
+                <div key={slot.id} className="rounded-2xl p-5 flex items-center gap-4"
+                  style={{ background: 'var(--surface)', border: '1px dashed var(--border)' }}>
+                  <div
+                    className="w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 text-white"
+                    style={{ background: '#4f46e5' }}
+                  >
+                    <span className="text-xs font-medium opacity-80">{MONTHS[currentMonth].slice(0, 3)}</span>
+                    <span className="text-xl font-bold leading-none">{slot.day}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Open slot</p>
+                    <div className="flex items-center gap-3 mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                      <span className="flex items-center gap-1"><Clock size={11} />{slot.time} · {slot.duration}</span>
+                      {slot.type === 'online'
+                        ? <span className="flex items-center gap-1"><Video size={11} />Online</span>
+                        : <span className="flex items-center gap-1"><MapPin size={11} />In-person</span>
+                      }
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeAvailability(slot.id)}
+                    className="text-xs font-semibold px-2.5 py-1 rounded-lg flex-shrink-0"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>

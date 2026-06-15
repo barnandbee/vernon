@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   UserCog, Save, CheckCircle2, Settings, Mic, Sparkles, Mail, ToggleLeft, ToggleRight,
-  Flame, ScrollText, Compass, Star, CalendarCheck, BadgeCheck, Lock, Trophy,
+  Flame, ScrollText, Compass, Star, CalendarCheck, BadgeCheck, Lock, Trophy, Bot,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { getPreferences, setPreference, DEFAULT_PREFERENCES, type Preferences } from '@/lib/preferences';
@@ -12,7 +12,7 @@ import { getActivityHistory, getBookmarks, type ActivityEntry } from '@/lib/libr
 import { APPOINTMENTS } from '../coachData';
 import { ACTION_ITEMS } from '../journeyData';
 
-const PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: string; description: string }[] = [
+const MEMBER_PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: string; description: string }[] = [
   {
     key: 'aiTranscriptRecording',
     icon: Mic,
@@ -30,6 +30,21 @@ const PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: string
     icon: Mail,
     title: 'Weekly newsletter',
     description: 'Get a weekly email summarising your progress, new resources, and upcoming sessions.',
+  },
+];
+
+const COACH_PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: string; description: string }[] = [
+  {
+    key: 'hideAiSuggestionsForClients',
+    icon: Bot,
+    title: 'Hide AI suggestions for clients',
+    description: 'Stop Vernon from showing AI-generated suggestions and resources to the clients you coach.',
+  },
+  {
+    key: 'weeklyNewsletter',
+    icon: Mail,
+    title: 'Weekly newsletter',
+    description: 'Get a weekly email summarising client progress and your upcoming sessions.',
   },
 ];
 
@@ -95,6 +110,8 @@ export default function ProfilePage() {
       return updated;
     });
   };
+
+  const preferenceRows = user?.accountType === 'coach' ? COACH_PREFERENCE_ROWS : MEMBER_PREFERENCE_ROWS;
 
   const viewedCount = activityHistory.filter((a) => a.action === 'viewed').length;
   const savedCount = bookmarks.length;
@@ -185,10 +202,12 @@ export default function ProfilePage() {
           <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Preferences</h2>
         </div>
         <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
-          Control how Vernon uses AI and keeps in touch with you.
+          {user?.accountType === 'coach'
+            ? 'Control what your clients see and how Vernon keeps in touch with you.'
+            : 'Control how Vernon uses AI and keeps in touch with you.'}
         </p>
         <div>
-          {PREFERENCE_ROWS.map((row, i) => (
+          {preferenceRows.map((row, i) => (
             <PreferenceToggle
               key={row.key}
               icon={row.icon}

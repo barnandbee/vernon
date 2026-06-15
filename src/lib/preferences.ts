@@ -4,12 +4,14 @@ export type Preferences = {
   aiTranscriptRecording: boolean;
   aiSuggestions: boolean;
   weeklyNewsletter: boolean;
+  hideAiSuggestionsForClients: boolean;
 };
 
 export const DEFAULT_PREFERENCES: Preferences = {
   aiTranscriptRecording: true,
   aiSuggestions: true,
   weeklyNewsletter: false,
+  hideAiSuggestionsForClients: false,
 };
 
 export function getPreferences(): Preferences {
