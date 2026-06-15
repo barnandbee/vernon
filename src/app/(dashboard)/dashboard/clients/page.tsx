@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CLIENTS, type Client } from '../coachData';
 import { getSharedNotes, type SharedNote } from '@/lib/sharedNotes';
 import {
-  CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare, NotebookPen,
+  CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare, NotebookPen, Bot,
 } from 'lucide-react';
 
 export default function ClientsPage() {
@@ -38,6 +38,14 @@ export default function ClientsPage() {
       actionPlan: [...c.actionPlan, { id: `${c.id}-extra-${c.actionPlan.length}`, text, done: false }],
     }));
     setNewItemText('');
+  };
+
+  const addInsightToActionPlan = (insight: Client['transcriptInsights'][number]) => {
+    const itemId = `${selected.id}-ai-${insight.id}`;
+    setClients((prev) => prev.map((c) => c.id !== selected.id ? c : {
+      ...c,
+      actionPlan: [...c.actionPlan, { id: itemId, text: insight.text, done: false }],
+    }));
   };
 
   return (
@@ -172,6 +180,36 @@ export default function ClientsPage() {
                 Nothing shared yet — notes {selected.name.split(' ')[0]} sends from My Journey will appear here before your next session.
               </p>
             )}
+          </div>
+
+          {/* AI notes from transcript */}
+          <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
+            <div className="flex items-center gap-2 mb-1">
+              <Bot size={16} style={{ color: '#7c3aed' }} />
+              <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>AI Notes from Transcript</h2>
+            </div>
+            <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+              Generated from the recording of {selected.lastSession.split(' · ')[0]}. Add anything useful straight to {selected.name.split(' ')[0]}&rsquo;s action plan.
+            </p>
+            <div className="space-y-2">
+              {selected.transcriptInsights.map((insight) => {
+                const added = selected.actionPlan.some((i) => i.id === `${selected.id}-ai-${insight.id}`);
+                return (
+                  <div key={insight.id} className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
+                    <p className="text-xs italic mb-2 leading-relaxed" style={{ color: 'var(--text-muted)' }}>&ldquo;{insight.quote}&rdquo;</p>
+                    <p className="text-sm mb-3" style={{ color: 'var(--foreground)' }}>{insight.text}</p>
+                    <button
+                      onClick={() => addInsightToActionPlan(insight)}
+                      disabled={added}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                      style={added ? { background: '#f0fdf4', color: '#15803d' } : { background: '#f5f3ff', color: '#7c3aed' }}
+                    >
+                      {added ? <><CheckCircle2 size={13} /> Added to action plan</> : <><Plus size={13} /> Add to action plan</>}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Action plan */}

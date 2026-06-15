@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { normalizePathname } from '@/lib/utils';
 import VernonLogo from '@/components/VernonLogo';
 import {
-  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, LogOut, ChevronRight, Sparkles
+  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, LogOut, ChevronRight, Sparkles, UserCog
 } from 'lucide-react';
 
 type NavItem = { href: string; icon: LucideIcon; label: string; badge?: boolean };
@@ -21,10 +21,12 @@ const MEMBER_NAV: NavItem[] = [
   { href: '/dashboard/reflections', icon: Lightbulb,       label: 'Reflections' },
   { href: '/dashboard/community',   icon: Users,           label: 'Community' },
   { href: '/dashboard/chat',        icon: MessageCircle,   label: 'Career Chat' },
+  { href: '/dashboard/profile',     icon: UserCog,         label: 'Profile' },
 ];
 
 const ORG_STAFF_NAV: NavItem[] = [
   { href: '/dashboard', icon: Building2, label: 'Organisation Dashboard' },
+  { href: '/dashboard/profile', icon: UserCog, label: 'Profile' },
 ];
 
 const COACH_NAV: NavItem[] = [
@@ -33,6 +35,7 @@ const COACH_NAV: NavItem[] = [
   { href: '/dashboard/schedule',   icon: CalendarDays,    label: 'Schedule' },
   { href: '/dashboard/resources',  icon: Sparkles,        label: 'Resource Finder' },
   { href: '/dashboard/development', icon: GraduationCap,  label: 'CPD & Training' },
+  { href: '/dashboard/profile',    icon: UserCog,         label: 'Profile' },
 ];
 
 export default function Sidebar() {
