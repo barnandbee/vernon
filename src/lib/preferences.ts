@@ -5,6 +5,7 @@ export type Preferences = {
   aiSuggestions: boolean;
   weeklyNewsletter: boolean;
   hideAiSuggestionsForClients: boolean;
+  orgAiRecommendationsDisabled: boolean;
 };
 
 export const DEFAULT_PREFERENCES: Preferences = {
@@ -12,6 +13,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   aiSuggestions: true,
   weeklyNewsletter: false,
   hideAiSuggestionsForClients: false,
+  orgAiRecommendationsDisabled: false,
 };
 
 export function getPreferences(): Preferences {

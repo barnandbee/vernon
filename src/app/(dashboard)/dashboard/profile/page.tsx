@@ -48,13 +48,30 @@ const COACH_PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: 
   },
 ];
 
-function PreferenceToggle({ icon: Icon, title, description, checked, onToggle, first }: {
+const ORG_PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: string; description: string }[] = [
+  {
+    key: 'orgAiRecommendationsDisabled',
+    icon: Bot,
+    title: 'Turn off AI recommendations for my organisation',
+    description: 'Hide AI-generated suggestions and insights across My Journey, Resources, and Career Chat for every member of your organisation, regardless of their individual settings.',
+  },
+  {
+    key: 'weeklyNewsletter',
+    icon: Mail,
+    title: 'Weekly newsletter',
+    description: 'Get a weekly email summarising engagement and progress across your organisation.',
+  },
+];
+
+function PreferenceToggle({ icon: Icon, title, description, checked, onToggle, first, locked, lockedNote }: {
   icon: LucideIcon;
   title: string;
   description: string;
   checked: boolean;
   onToggle: () => void;
   first: boolean;
+  locked?: boolean;
+  lockedNote?: string;
 }) {
   return (
     <div className="flex items-center gap-3 py-3" style={first ? undefined : { borderTop: '1px solid var(--border)' }}>
@@ -64,8 +81,18 @@ function PreferenceToggle({ icon: Icon, title, description, checked, onToggle, f
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{title}</p>
         <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--text-muted)' }}>{description}</p>
+        {locked && lockedNote && (
+          <p className="text-xs mt-1.5 flex items-center gap-1 font-medium" style={{ color: 'var(--text-muted)' }}>
+            <Lock size={11} /> {lockedNote}
+          </p>
+        )}
       </div>
-      <button onClick={onToggle} className="flex-shrink-0" aria-label={`Toggle ${title}`}>
+      <button
+        onClick={locked ? undefined : onToggle}
+        disabled={locked}
+        className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+        aria-label={`Toggle ${title}`}
+      >
         {checked
           ? <ToggleRight size={30} style={{ color: 'var(--primary)' }} />
           : <ToggleLeft size={30} style={{ color: 'var(--text-muted)' }} />}
@@ -111,7 +138,11 @@ export default function ProfilePage() {
     });
   };
 
-  const preferenceRows = user?.accountType === 'coach' ? COACH_PREFERENCE_ROWS : MEMBER_PREFERENCE_ROWS;
+  const preferenceRows = user?.accountType === 'coach'
+    ? COACH_PREFERENCE_ROWS
+    : user?.accountType === 'org_staff'
+    ? ORG_PREFERENCE_ROWS
+    : MEMBER_PREFERENCE_ROWS;
 
   const viewedCount = activityHistory.filter((a) => a.action === 'viewed').length;
   const savedCount = bookmarks.length;
@@ -204,20 +235,29 @@ export default function ProfilePage() {
         <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
           {user?.accountType === 'coach'
             ? 'Control what your clients see and how Vernon keeps in touch with you.'
+            : user?.accountType === 'org_staff'
+            ? 'Control AI access for your organisation and how Vernon keeps in touch with you.'
             : 'Control how Vernon uses AI and keeps in touch with you.'}
         </p>
         <div>
-          {preferenceRows.map((row, i) => (
-            <PreferenceToggle
-              key={row.key}
-              icon={row.icon}
-              title={row.title}
-              description={row.description}
-              checked={preferences[row.key]}
-              onToggle={() => handleToggle(row.key)}
-              first={i === 0}
-            />
-          ))}
+          {preferenceRows.map((row, i) => {
+            const orgLocked = row.key === 'aiSuggestions'
+              && user?.accountType === 'member'
+              && preferences.orgAiRecommendationsDisabled;
+            return (
+              <PreferenceToggle
+                key={row.key}
+                icon={row.icon}
+                title={row.title}
+                description={row.description}
+                checked={orgLocked ? false : preferences[row.key]}
+                onToggle={() => handleToggle(row.key)}
+                first={i === 0}
+                locked={orgLocked}
+                lockedNote={orgLocked ? 'Turned off by your organisation' : undefined}
+              />
+            );
+          })}
         </div>
       </div>
 

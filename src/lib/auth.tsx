@@ -24,17 +24,17 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const DEMO_CREDENTIALS = {
   email: 'demo@vernon.app',
-  password: 'demo1234',
+  password: '1nsects',
 };
 
 export const ORG_DEMO_CREDENTIALS = {
   email: 'org@vernon.app',
-  password: 'org1234',
+  password: 'o1lbeetle',
 };
 
 export const COACH_DEMO_CREDENTIALS = {
   email: 'coach@vernon.app',
-  password: 'coach1234',
+  password: 'caterp1llar',
 };
 
 const DEMO_USER: User = {

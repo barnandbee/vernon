@@ -1,7 +1,10 @@
+'use client';
+
 import type { LucideIcon } from 'lucide-react';
 import {
-  Building2, ShieldCheck, Users, Activity, Lightbulb, CalendarDays, GraduationCap, Target, MessageCircle, Flame, ArrowUpRight,
+  Building2, ShieldCheck, Users, Activity, Lightbulb, CalendarDays, GraduationCap, Target, MessageCircle, Flame, ArrowUpRight, Download,
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 const ORG_STATS = [
   { label: 'Active members', value: '86', sub: 'of 120 invited', icon: Users, color: '#1d4ed8', bg: '#eff6ff' },
@@ -60,17 +63,89 @@ export default function OrganisationDashboard({ orgName }: { orgName: string }) 
   const maxTrend = Math.max(...ENGAGEMENT_TREND.map((t) => t.value));
   const totalInJourney = JOURNEY_BANDS.reduce((sum, b) => sum + b.count, 0);
 
+  const handleDownloadPdf = () => {
+    const doc = new jsPDF();
+    const marginX = 14;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let y = 18;
+
+    const ensureSpace = () => {
+      if (y > pageHeight - 20) {
+        doc.addPage();
+        y = 18;
+      }
+    };
+
+    const section = (title: string) => {
+      ensureSpace();
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text(title, marginX, y);
+      y += 7;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+    };
+
+    const line = (text: string) => {
+      ensureSpace();
+      doc.text(text, marginX, y);
+      y += 6;
+    };
+
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Vernon - Organisation Insights', marginX, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120);
+    doc.text(`${orgName} | Generated ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`, marginX, y);
+    doc.setTextColor(0);
+    y += 12;
+
+    section('Key metrics');
+    ORG_STATS.forEach((s) => line(`${s.label}: ${s.value} (${s.sub})`));
+    y += 4;
+
+    section('Weekly engagement');
+    ENGAGEMENT_TREND.forEach((t) => line(`${t.label}: ${t.value}% of active members`));
+    y += 4;
+
+    section('Where members are in their journey');
+    JOURNEY_BANDS.forEach((b) => line(`${b.label} (${b.range}): ${b.count} members`));
+    y += 4;
+
+    section('Where members spend their time');
+    FEATURE_USAGE.forEach((f) => line(`${f.label}: ${f.value}%`));
+    y += 4;
+
+    section('Member activity');
+    MEMBERS.forEach((m) => line(`${m.name} - ${m.progress}% of journey, ${m.streak}-day streak, ${m.sessions} sessions, last active ${m.lastActive}`));
+
+    doc.save(`vernon-${orgName.toLowerCase().replace(/\s+/g, '-')}-insights-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2.5 font-playwrite" style={{ color: 'var(--foreground)' }}>
-          <Building2 size={22} style={{ color: 'var(--primary)' }} />
-          Organisation Insights
-        </h1>
-        <p className="text-sm mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-          A top-level view of how {orgName}&apos;s members are engaging with Vernon and where they are on their journeys.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2.5 font-playwrite" style={{ color: 'var(--foreground)' }}>
+            <Building2 size={22} style={{ color: 'var(--primary)' }} />
+            Organisation Insights
+          </h1>
+          <p className="text-sm mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            A top-level view of how {orgName}&apos;s members are engaging with Vernon and where they are on their journeys.
+          </p>
+        </div>
+        <button
+          onClick={handleDownloadPdf}
+          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg text-white flex-shrink-0"
+          style={{ background: 'var(--primary)' }}
+        >
+          <Download size={14} /> Download PDF report
+        </button>
       </div>
 
       {/* Privacy / methodology note */}

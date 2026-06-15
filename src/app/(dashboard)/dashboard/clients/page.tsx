@@ -90,7 +90,7 @@ export default function ClientsPage() {
     <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>My Clients</h1>
+        <h1 className="text-2xl font-bold font-playwrite" style={{ color: 'var(--foreground)' }}>My Clients</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
           Review progress and keep action plans up to date
         </p>
