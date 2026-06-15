@@ -94,7 +94,7 @@ export default function DashboardPage() {
       {/* Welcome header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>
+          <h1 className="text-2xl font-bold font-playwrite" style={{ color: 'var(--foreground)' }}>
             {greeting}, {user?.name?.split(' ')[0]} 👋
           </h1>
           <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>

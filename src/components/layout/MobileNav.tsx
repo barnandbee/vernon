@@ -61,7 +61,7 @@ export default function MobileNav() {
       >
         <div className="flex items-center gap-2">
           <VernonLogo size={28} />
-          <span className="font-bold" style={{ color: 'var(--primary)' }}>Vernon</span>
+          <span className="font-bold font-playwrite" style={{ color: 'var(--primary)' }}>Vernon</span>
         </div>
         <button onClick={() => setOpen(true)} style={{ color: 'var(--text-muted)' }}>
           <Menu size={22} />
@@ -76,7 +76,7 @@ export default function MobileNav() {
             style={{ background: 'var(--surface)' }}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
-              <span className="font-bold text-lg" style={{ color: 'var(--primary)' }}>Vernon</span>
+              <span className="font-bold text-lg font-playwrite" style={{ color: 'var(--primary)' }}>Vernon</span>
               <button onClick={() => setOpen(false)} style={{ color: 'var(--text-muted)' }}>
                 <X size={20} />
               </button>

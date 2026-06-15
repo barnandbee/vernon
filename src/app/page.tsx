@@ -54,7 +54,7 @@ export default function LandingPage() {
       <header className="max-w-6xl mx-auto px-6 sm:px-10 py-5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <VernonLogo size={34} />
-          <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--primary)' }}>Vernon</span>
+          <span className="font-bold text-lg tracking-tight font-playwrite" style={{ color: 'var(--primary)' }}>Vernon</span>
         </div>
         <div className="flex items-center gap-3">
           {user ? (
@@ -166,7 +166,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm" style={{ color: 'var(--text-muted)' }}>
           <div className="flex items-center gap-2">
             <VernonLogo size={20} />
-            <span>Vernon</span>
+            <span className="font-playwrite">Vernon</span>
           </div>
           <p>© 2026 Vernon. All rights reserved.</p>
         </div>

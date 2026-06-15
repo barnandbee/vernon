@@ -43,7 +43,7 @@ export default function LoginPage() {
       >
         <div className="flex items-center gap-3">
           <VernonLogo size={40} light />
-          <span className="text-white text-2xl font-semibold tracking-tight">Vernon</span>
+          <span className="text-white text-2xl font-semibold tracking-tight font-playwrite">Vernon</span>
         </div>
 
         <div>
@@ -68,7 +68,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
             <VernonLogo size={36} />
-            <span className="text-2xl font-semibold" style={{ color: 'var(--primary)' }}>Vernon</span>
+            <span className="text-2xl font-semibold font-playwrite" style={{ color: 'var(--primary)' }}>Vernon</span>
           </div>
 
           <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>

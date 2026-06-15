@@ -67,7 +67,7 @@ export default function CalendarPage() {
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Coaching Calendar</h1>
+          <h1 className="text-2xl font-bold font-playwrite" style={{ color: 'var(--foreground)' }}>Coaching Calendar</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
             Manage and book sessions with your coaches
           </p>

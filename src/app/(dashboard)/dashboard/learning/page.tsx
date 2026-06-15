@@ -62,7 +62,7 @@ export default function LearningPage() {
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Learning &amp; Tools</h1>
+        <h1 className="text-2xl font-bold font-playwrite" style={{ color: 'var(--foreground)' }}>Learning &amp; Tools</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
           Build the skills and self-knowledge to back up your plan.
         </p>

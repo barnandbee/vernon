@@ -183,7 +183,7 @@ export default function ReflectionsPage() {
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Career Reflections</h1>
+        <h1 className="text-2xl font-bold font-playwrite" style={{ color: 'var(--foreground)' }}>Career Reflections</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
           Deepen your self-awareness through guided prompts
         </p>

@@ -139,7 +139,7 @@ export default function ProfilePage() {
     <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Profile</h1>
+        <h1 className="text-2xl font-bold font-playwrite" style={{ color: 'var(--foreground)' }}>Profile</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
           {user?.accountType === 'member'
             ? 'Manage your account, preferences, and achievements'

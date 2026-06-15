@@ -60,7 +60,7 @@ export default function Sidebar() {
       <div className="flex items-center gap-3 px-6 py-5 border-b" style={{ borderColor: 'var(--border)' }}>
         <VernonLogo size={32} />
         <div>
-          <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--primary)' }}>Vernon</span>
+          <span className="font-bold text-lg tracking-tight font-playwrite" style={{ color: 'var(--primary)' }}>Vernon</span>
           <p className="text-xs leading-none" style={{ color: 'var(--text-muted)' }}>Career Coaching</p>
         </div>
       </div>
