@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   ChevronDown, ArrowUp, ArrowDown, Copy, Check, Sparkles, RefreshCw,
 } from 'lucide-react';
+import { getProfileReport, saveProfileReport } from '@/lib/profile';
 
 type TagColor = { bg: string; color: string };
 
@@ -193,6 +194,12 @@ export function ProfileBuilderActivity() {
   const [generated, setGenerated] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    const stored = getProfileReport();
+    setAnswers({ knownFor: stored.knownFor, proudMoment: stored.proudMoment, impact: stored.impact });
+    setSkills(stored.skills);
+  }, []);
+
   const updateAnswer = (key: string, value: string) => {
     setGenerated(false);
     setAnswers((prev) => ({ ...prev, [key]: value }));
@@ -216,6 +223,11 @@ export function ProfileBuilderActivity() {
     `Core strengths: ${skills.join(', ')}`,
   ].join('\n');
 
+  const handleGenerate = () => {
+    setGenerated(true);
+    saveProfileReport({ knownFor: answers.knownFor, proudMoment: answers.proudMoment, impact: answers.impact, skills });
+  };
+
   const handleCopy = () => {
     navigator.clipboard?.writeText(profileText);
     setCopied(true);
@@ -226,7 +238,8 @@ export function ProfileBuilderActivity() {
     <div className="space-y-4 pt-1">
       <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
         Answer three quick questions and pick up to {MAX_SKILLS} skills to generate a short profile you could adapt
-        for your CV, LinkedIn headline, or an introduction.
+        for your CV, LinkedIn headline, or an introduction. This also powers the personalised insights you see on
+        resources across Vernon.
       </p>
 
       {PROFILE_QUESTIONS.map((q) => (
@@ -267,7 +280,7 @@ export function ProfileBuilderActivity() {
       </div>
 
       <button
-        onClick={() => setGenerated(true)}
+        onClick={handleGenerate}
         disabled={!canGenerate}
         className="px-4 py-2 rounded-xl text-white text-xs font-semibold disabled:opacity-50"
         style={{ background: 'var(--primary)' }}
@@ -284,6 +297,7 @@ export function ProfileBuilderActivity() {
             </button>
           </div>
           <pre className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: '#5b21b6', fontFamily: 'inherit' }}>{profileText}</pre>
+          <p className="text-xs" style={{ color: '#7c3aed' }}>Saved to your profile report.</p>
         </div>
       )}
     </div>

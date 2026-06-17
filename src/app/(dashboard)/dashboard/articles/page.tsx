@@ -2,12 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Search, Clock, Tag, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Layers, History, UserRound } from 'lucide-react';
+import {
+  Search, Clock, Tag, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Layers, History, UserRound,
+  Sparkles, ThumbsUp, ThumbsDown, Shuffle,
+} from 'lucide-react';
 import { RESOURCE_LIBRARY, TYPE_META, type LibraryResource, type ResourceType } from '@/lib/resourceLibrary';
 import {
   getBookmarks, toggleBookmark, getAssignedResources, getActivityHistory, logActivity,
   type ActivityEntry, type AssignedResource, type ActivityAction,
 } from '@/lib/library';
+import { getProfileReport, type ProfileReport } from '@/lib/profile';
+import { getResourceInsight, getExplorationResources } from '@/lib/resourceInsights';
+import { getResourceFeedback, setResourceFeedback, type FeedbackValue } from '@/lib/resourceFeedback';
 import ResourceModal from '@/components/ResourceModal';
 
 // The demo member account is Jamie Rivera, matching CLIENTS[0] in coachData.
@@ -47,11 +53,15 @@ export default function ArticlesPage() {
   const [assigned, setAssigned] = useState<AssignedResource[]>([]);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [activeResource, setActiveResource] = useState<LibraryResource | null>(null);
+  const [profile, setProfile] = useState<ProfileReport>(getProfileReport());
+  const [feedback, setFeedback] = useState<Record<string, FeedbackValue>>({});
 
   useEffect(() => {
     setBookmarks(getBookmarks());
     setAssigned(getAssignedResources());
     setActivity(getActivityHistory());
+    setProfile(getProfileReport());
+    setFeedback(getResourceFeedback());
   }, []);
 
   const filtered = RESOURCE_LIBRARY.filter((r) => {
@@ -75,6 +85,11 @@ export default function ArticlesPage() {
     .map((id) => RESOURCE_LIBRARY.find((r) => r.id === id))
     .filter((r): r is LibraryResource => !!r);
 
+  const explorationResources = getExplorationResources(
+    profile,
+    [...bookmarks, ...assignedResources.map((a) => a.resource.id)],
+  );
+
   const openResource = (resource: LibraryResource) => {
     setActiveResource(resource);
     setActivity(logActivity(resource.id, resource.title, resource.type, 'viewed'));
@@ -84,6 +99,10 @@ export default function ArticlesPage() {
     const updated = toggleBookmark(resource.id);
     setBookmarks(updated);
     setActivity(logActivity(resource.id, resource.title, resource.type, updated.includes(resource.id) ? 'bookmarked' : 'unbookmarked'));
+  };
+
+  const handleFeedback = (resourceId: string, value: FeedbackValue) => {
+    setFeedback(setResourceFeedback(resourceId, value));
   };
 
   return (
@@ -324,6 +343,39 @@ export default function ArticlesPage() {
         </div>
       )}
 
+      {/* Something a bit different — AI picks outside the user's usual profile */}
+      {explorationResources.length > 0 && (
+        <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
+          <div className="flex items-center gap-2 mb-1">
+            <Shuffle size={16} style={{ color: 'var(--primary)' }} />
+            <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Something a bit different</h2>
+          </div>
+          <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+            Picked to sit outside your usual focus areas — for genuine exploration, not more of the same.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {explorationResources.map((resource) => {
+              const meta = TYPE_META[resource.type];
+              const Icon = meta.icon;
+              return (
+                <button
+                  key={resource.id}
+                  onClick={() => openResource(resource)}
+                  className="text-left rounded-xl p-3.5"
+                  style={{ background: 'var(--surface-muted)' }}
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: meta.bg }}>
+                    <Icon size={14} style={{ color: meta.color }} />
+                  </div>
+                  <p className="text-xs font-medium leading-snug line-clamp-2 mb-1" style={{ color: 'var(--foreground)' }}>{resource.title}</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{resource.category}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Activity history */}
       <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
         <div className="flex items-center gap-2 mb-3">
@@ -363,6 +415,36 @@ export default function ArticlesPage() {
         <ResourceModal
           resource={activeResource}
           onClose={() => setActiveResource(null)}
+          insightBox={
+            <div className="rounded-xl p-3.5" style={{ background: '#f5f3ff' }}>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Sparkles size={13} style={{ color: '#7c3aed' }} />
+                <span className="text-xs font-semibold" style={{ color: '#7c3aed' }}>Personalised for you</span>
+              </div>
+              <p className="text-xs leading-relaxed mb-2.5" style={{ color: '#5b21b6' }}>
+                {getResourceInsight(activeResource, profile)}
+              </p>
+              <div className="flex items-center gap-3">
+                <span className="text-xs" style={{ color: '#7c3aed' }}>Was this useful?</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleFeedback(activeResource.id, 'up')}
+                    aria-label="Thumbs up"
+                    style={{ color: feedback[activeResource.id] === 'up' ? '#15803d' : '#7c3aed' }}
+                  >
+                    <ThumbsUp size={14} fill={feedback[activeResource.id] === 'up' ? '#15803d' : 'none'} />
+                  </button>
+                  <button
+                    onClick={() => handleFeedback(activeResource.id, 'down')}
+                    aria-label="Thumbs down"
+                    style={{ color: feedback[activeResource.id] === 'down' ? '#b91c1c' : '#7c3aed' }}
+                  >
+                    <ThumbsDown size={14} fill={feedback[activeResource.id] === 'down' ? '#b91c1c' : 'none'} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
           footer={
             <button
               onClick={() => handleToggleBookmark(activeResource)}

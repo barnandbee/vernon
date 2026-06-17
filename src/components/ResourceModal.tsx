@@ -7,10 +7,11 @@ import { TYPE_META, type LibraryResource } from '@/lib/resourceLibrary';
 type ResourceModalProps = {
   resource: LibraryResource;
   onClose: () => void;
+  insightBox?: ReactNode;
   footer?: ReactNode;
 };
 
-export default function ResourceModal({ resource, onClose, footer }: ResourceModalProps) {
+export default function ResourceModal({ resource, onClose, insightBox, footer }: ResourceModalProps) {
   const meta = TYPE_META[resource.type];
   const Icon = meta.icon;
 
@@ -58,6 +59,8 @@ export default function ResourceModal({ resource, onClose, footer }: ResourceMod
         >
           {resource.category}
         </span>
+
+        {insightBox && <div className="mb-4">{insightBox}</div>}
 
         <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: 'var(--foreground)' }}>
           {resource.content ?? resource.summary}

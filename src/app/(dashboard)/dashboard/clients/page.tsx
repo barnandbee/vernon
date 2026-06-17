@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CLIENTS, type Client } from '../coachData';
+import { CLIENTS, type Client, type TranscriptInsight } from '../coachData';
 import { getSharedNotes, type SharedNote } from '@/lib/sharedNotes';
 import {
   CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare, NotebookPen, Bot, Pencil, Save, Check, X,
@@ -46,7 +46,7 @@ export default function ClientsPage() {
     setNewItemText('');
   };
 
-  const addInsightToActionPlan = (insight: Client['transcriptInsights'][number], text: string) => {
+  const addInsightToActionPlan = (insight: TranscriptInsight, text: string) => {
     const itemId = `${selected.id}-ai-${insight.id}`;
     setClients((prev) => prev.map((c) => c.id !== selected.id ? c : {
       ...c,
@@ -255,50 +255,57 @@ export default function ClientsPage() {
               <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>AI Notes from Transcript</h2>
             </div>
             <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
-              Generated from the recording of {selected.lastSession.split(' · ')[0]}. Add anything useful straight to {selected.name.split(' ')[0]}&rsquo;s action plan.
+              Generated from session recordings, broken into blocks per session. Add anything useful straight to {selected.name.split(' ')[0]}&rsquo;s action plan — nothing is added automatically.
             </p>
-            <div className="space-y-2">
-              {selected.transcriptInsights.map((insight) => {
-                const added = selected.actionPlan.some((i) => i.id === `${selected.id}-ai-${insight.id}`);
-                const isEditing = editingInsightId === insight.id;
-                const currentText = insightTexts[insight.id] ?? insight.text;
-                return (
-                  <div key={insight.id} className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
-                    <p className="text-xs italic mb-2 leading-relaxed" style={{ color: 'var(--text-muted)' }}>&ldquo;{insight.quote}&rdquo;</p>
-                    {isEditing ? (
-                      <input
-                        value={currentText}
-                        onChange={(e) => setInsightTexts((prev) => ({ ...prev, [insight.id]: e.target.value }))}
-                        onKeyDown={(e) => { if (e.key === 'Enter') setEditingInsightId(null); }}
-                        className="w-full text-sm mb-3 px-2.5 py-1.5 rounded-lg border outline-none"
-                        style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                        autoFocus
-                      />
-                    ) : (
-                      <p className="text-sm mb-3" style={{ color: 'var(--foreground)' }}>{currentText}</p>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => addInsightToActionPlan(insight, currentText)}
-                        disabled={added}
-                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                        style={added ? { background: '#f0fdf4', color: '#15803d' } : { background: '#f5f3ff', color: '#7c3aed' }}
-                      >
-                        {added ? <><CheckCircle2 size={13} /> Added to action plan</> : <><Plus size={13} /> Add to action plan</>}
-                      </button>
-                      {!added && (
-                        <button
-                          onClick={() => setEditingInsightId(isEditing ? null : insight.id)}
-                          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                          style={{ background: 'var(--surface)', color: 'var(--text-muted)' }}
-                        >
-                          {isEditing ? <><Check size={13} /> Done</> : <><Pencil size={13} /> Edit</>}
-                        </button>
-                      )}
-                    </div>
+            <div className="space-y-4">
+              {selected.sessionNotes.map((session) => (
+                <div key={session.id}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>{session.title}</p>
+                  <div className="space-y-2">
+                    {session.insights.map((insight) => {
+                      const added = selected.actionPlan.some((i) => i.id === `${selected.id}-ai-${insight.id}`);
+                      const isEditing = editingInsightId === insight.id;
+                      const currentText = insightTexts[insight.id] ?? insight.text;
+                      return (
+                        <div key={insight.id} className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
+                          <p className="text-xs italic mb-2 leading-relaxed" style={{ color: 'var(--text-muted)' }}>&ldquo;{insight.quote}&rdquo;</p>
+                          {isEditing ? (
+                            <input
+                              value={currentText}
+                              onChange={(e) => setInsightTexts((prev) => ({ ...prev, [insight.id]: e.target.value }))}
+                              onKeyDown={(e) => { if (e.key === 'Enter') setEditingInsightId(null); }}
+                              className="w-full text-sm mb-3 px-2.5 py-1.5 rounded-lg border outline-none"
+                              style={{ background: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                              autoFocus
+                            />
+                          ) : (
+                            <p className="text-sm mb-3" style={{ color: 'var(--foreground)' }}>{currentText}</p>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => addInsightToActionPlan(insight, currentText)}
+                              disabled={added}
+                              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                              style={added ? { background: '#f0fdf4', color: '#15803d' } : { background: '#f5f3ff', color: '#7c3aed' }}
+                            >
+                              {added ? <><CheckCircle2 size={13} /> Added to action plan</> : <><Plus size={13} /> Add to action plan</>}
+                            </button>
+                            {!added && (
+                              <button
+                                onClick={() => setEditingInsightId(isEditing ? null : insight.id)}
+                                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                                style={{ background: 'var(--surface)', color: 'var(--text-muted)' }}
+                              >
+                                {isEditing ? <><Check size={13} /> Done</> : <><Pencil size={13} /> Edit</>}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
 
