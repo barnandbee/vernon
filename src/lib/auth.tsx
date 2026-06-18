@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { DIAGNOSTIC_PENDING_SESSION_KEY } from './diagnostic';
 
 interface User {
   id: string;
@@ -97,6 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setUser(loggedInUser);
     localStorage.setItem('vernon_user', JSON.stringify(loggedInUser));
+    if (loggedInUser.accountType === 'member') {
+      // Demo behaviour: re-run the Vernon Insights diagnostic on every login,
+      // not just the first, so it's easy to showcase the flow repeatedly.
+      sessionStorage.setItem(DIAGNOSTIC_PENDING_SESSION_KEY, 'true');
+    }
     return true;
   };
 

@@ -1,5 +1,6 @@
 import { RESOURCE_LIBRARY, type LibraryResource } from './resourceLibrary';
 import type { ProfileReport } from './profile';
+import { FOCUS_OPTIONS, VALUE_OPTIONS, type DiagnosticAnswers, type ValueKey, type CoachingFocus } from './diagnostic';
 
 // Maps each profile skill to the resource categories/tags it's most relevant
 // to — a stand-in for an AI model drawing on a user's profile report to
@@ -17,6 +18,28 @@ const SKILL_RELATED_TAGS: Record<string, string[]> = {
   'Adaptability': ['resilience', 'pivot', 'transition', 'wellbeing'],
   'Stakeholder management': ['relationship', 'trust', 'influence', 'networking'],
   'Public speaking': ['storytelling', 'confidence', 'body language', 'interview'],
+};
+
+// Maps each ranked Vernon Insights value to the resource tags it connects to.
+const VALUE_RELATED_TAGS: Record<ValueKey, string[]> = {
+  autonomy: ['boundaries', 'wellbeing'],
+  impact: ['leadership', 'influence', 'career change'],
+  stability: ['resilience', 'wellbeing', 'setbacks'],
+  growth: ['pivot', 'transition', 'practice', 'skills'],
+  recognition: ['visibility', 'branding', 'promotion'],
+  collaboration: ['relationship', 'trust', 'networking', 'community'],
+  creativity: ['branding', 'storytelling'],
+  reward: ['pay', 'negotiation', 'promotion'],
+};
+
+// The resource category each Vernon Insights coaching focus points to most directly.
+const FOCUS_CATEGORY: Record<CoachingFocus, string> = {
+  advancing: 'Skills',
+  'career-change': 'Career Change',
+  leadership: 'Leadership',
+  negotiation: 'Salary & Negotiation',
+  'personal-development': 'Resilience',
+  returning: 'Career Change',
 };
 
 const CATEGORY_FRAMING: Record<string, (skill: string) => string> = {
@@ -38,27 +61,57 @@ function matchedSkills(resource: LibraryResource, skills: string[]): string[] {
   return skills.filter((skill) => (SKILL_RELATED_TAGS[skill] ?? []).some((tag) => keywords.includes(tag)));
 }
 
-// Naive keyword overlap between a resource and the user's profile report —
-// a stand-in for an AI model generating a narrative tailored to that resource.
-export function getResourceInsight(resource: LibraryResource, profile: ProfileReport): string {
-  const matches = matchedSkills(resource, profile.skills);
-  if (matches.length > 0) {
-    const skill = matches[0].toLowerCase();
+function matchedValues(resource: LibraryResource, values: ValueKey[]): ValueKey[] {
+  const keywords = resourceKeywords(resource);
+  return values.filter((value) => VALUE_RELATED_TAGS[value].some((tag) => keywords.includes(tag)));
+}
+
+// Naive keyword overlap between a resource and the user's profile report and
+// Vernon Insights diagnostic — a stand-in for an AI model generating a
+// narrative tailored to that resource.
+export function getResourceInsight(resource: LibraryResource, profile: ProfileReport, diagnostic?: DiagnosticAnswers | null): string {
+  const skillMatches = matchedSkills(resource, profile.skills);
+  if (skillMatches.length > 0) {
+    const skill = skillMatches[0].toLowerCase();
     const framing = CATEGORY_FRAMING[resource.category];
     return framing ? framing(skill) : `Given your strength in ${skill}, this is worth a look.`;
   }
+
+  if (diagnostic) {
+    if (FOCUS_CATEGORY[diagnostic.focus] === resource.category) {
+      const focusLabel = (FOCUS_OPTIONS.find((o) => o.key === diagnostic.focus)?.label ?? '').toLowerCase();
+      return `This lines up with what your Vernon Insights flagged as your focus right now — ${focusLabel}.`;
+    }
+    const valueMatches = matchedValues(resource, diagnostic.values);
+    if (valueMatches.length > 0) {
+      const valueLabel = (VALUE_OPTIONS.find((o) => o.key === valueMatches[0])?.label ?? '').toLowerCase();
+      return `You ranked ${valueLabel} highly in your Vernon Insights — this speaks directly to that.`;
+    }
+  }
+
   const fallbackSkill = profile.skills[0]?.toLowerCase();
   return fallbackSkill
     ? `This sits a little outside your core strengths in ${fallbackSkill}, but it's a solid grounding in ${resource.category.toLowerCase()} worth having.`
     : `A solid grounding in ${resource.category.toLowerCase()}.`;
 }
 
-// Resources with the least overlap with the user's profile — surfaced as
-// genuine exploration rather than more of the same.
-export function getExplorationResources(profile: ProfileReport, excludeIds: string[] = [], count = 3): LibraryResource[] {
+// Resources with the least overlap with the user's profile and Vernon
+// Insights — surfaced as genuine exploration rather than more of the same.
+export function getExplorationResources(
+  profile: ProfileReport,
+  excludeIds: string[] = [],
+  count = 3,
+  diagnostic?: DiagnosticAnswers | null,
+): LibraryResource[] {
   const scored = RESOURCE_LIBRARY
     .filter((r) => !excludeIds.includes(r.id))
-    .map((r) => ({ resource: r, score: matchedSkills(r, profile.skills).length }));
+    .map((r) => {
+      const skillScore = matchedSkills(r, profile.skills).length;
+      const diagnosticScore = diagnostic
+        ? matchedValues(r, diagnostic.values).length + (FOCUS_CATEGORY[diagnostic.focus] === r.category ? 1 : 0)
+        : 0;
+      return { resource: r, score: skillScore + diagnosticScore };
+    });
 
   return scored
     .sort((a, b) => a.score - b.score || a.resource.id.localeCompare(b.resource.id))

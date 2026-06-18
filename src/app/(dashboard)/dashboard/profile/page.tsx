@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   UserCog, Save, CheckCircle2, Settings, Mic, Sparkles, Mail, ToggleLeft, ToggleRight,
-  Flame, ScrollText, Compass, Star, CalendarCheck, BadgeCheck, Lock, Trophy, Bot,
+  Flame, ScrollText, Compass, Star, CalendarCheck, BadgeCheck, Lock, Trophy, Bot, RefreshCw,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { getPreferences, setPreference, DEFAULT_PREFERENCES, type Preferences } from '@/lib/preferences';
 import { getActivityHistory, getBookmarks, type ActivityEntry } from '@/lib/library';
+import { getDiagnosticAnswers, saveDiagnosticAnswers, getDiagnosticInsights, type DiagnosticAnswers } from '@/lib/diagnostic';
+import DiagnosticModal from '@/components/DiagnosticModal';
 import { APPOINTMENTS } from '../coachData';
 import { ACTION_ITEMS } from '../journeyData';
 
@@ -109,6 +111,8 @@ export default function ProfilePage() {
   const [preferences, setPreferences] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [activityHistory, setActivityHistory] = useState<ActivityEntry[]>([]);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [diagnosticAnswers, setDiagnosticAnswers] = useState<DiagnosticAnswers | null>(null);
+  const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -121,6 +125,7 @@ export default function ProfilePage() {
     setPreferences(getPreferences());
     setActivityHistory(getActivityHistory());
     setBookmarks(getBookmarks());
+    setDiagnosticAnswers(getDiagnosticAnswers());
   }, []);
 
   const handleSave = () => {
@@ -148,6 +153,7 @@ export default function ProfilePage() {
   const savedCount = bookmarks.length;
   const completedSessions = APPOINTMENTS.filter((a) => a.clientId === 'jamie-rivera' && a.status === 'completed').length;
   const completedGoals = ACTION_ITEMS.filter((a) => a.status === 'done').length;
+  const insights = diagnosticAnswers ? getDiagnosticInsights(diagnosticAnswers) : null;
 
   const stats: { label: string; value: string; icon: LucideIcon; color: string; bg: string }[] = [
     { label: 'Day streak', value: '7', icon: Flame, color: '#ea580c', bg: '#fff7ed' },
@@ -261,6 +267,70 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Vernon Insights (members only) */}
+      {user?.accountType === 'member' && (
+        <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} style={{ color: '#7c3aed' }} />
+              <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Vernon Insights</h2>
+            </div>
+            {insights && (
+              <button
+                onClick={() => setShowDiagnosticModal(true)}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
+                style={{ background: '#f5f3ff', color: '#7c3aed' }}
+              >
+                <RefreshCw size={13} />
+                Retake
+              </button>
+            )}
+          </div>
+          {insights ? (
+            <>
+              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                Your diagnostic profile report — this shapes the resources Vernon recommends and gives your coach a top-level view of where you&rsquo;re starting from.
+              </p>
+              <div className="rounded-xl p-4 mb-4" style={{ background: '#f5f3ff' }}>
+                <p className="text-sm leading-relaxed" style={{ color: '#5b21b6' }}>{insights.summary}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
+                  <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Top values</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{insights.topValues.join(', ')}</p>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
+                  <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Sector interest</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{insights.sectorLabels.join(', ')}</p>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
+                  <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Readiness</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{insights.readinessLabel}</p>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
+                  <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Coaching focus</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{insights.focusLabel}</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                Complete a short diagnostic so Vernon can tailor your resource recommendations and give your coach a top-level view of where you&rsquo;re starting from.
+              </p>
+              <button
+                onClick={() => setShowDiagnosticModal(true)}
+                className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl text-white"
+                style={{ background: 'var(--primary)' }}
+              >
+                <Sparkles size={15} />
+                Start my Vernon Insights diagnostic
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Awards (members only) */}
       {user?.accountType === 'member' && (
         <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
@@ -306,6 +376,18 @@ export default function ProfilePage() {
             })}
           </div>
         </div>
+      )}
+
+      {showDiagnosticModal && (
+        <DiagnosticModal
+          initialAnswers={diagnosticAnswers}
+          onDismiss={() => setShowDiagnosticModal(false)}
+          onComplete={(answers) => {
+            saveDiagnosticAnswers(answers);
+            setDiagnosticAnswers(answers);
+            setShowDiagnosticModal(false);
+          }}
+        />
       )}
     </div>
   );

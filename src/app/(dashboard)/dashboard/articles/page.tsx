@@ -14,6 +14,7 @@ import {
 import { getProfileReport, type ProfileReport } from '@/lib/profile';
 import { getResourceInsight, getExplorationResources } from '@/lib/resourceInsights';
 import { getResourceFeedback, setResourceFeedback, type FeedbackValue } from '@/lib/resourceFeedback';
+import { getDiagnosticAnswers, type DiagnosticAnswers } from '@/lib/diagnostic';
 import ResourceModal from '@/components/ResourceModal';
 
 // The demo member account is Jamie Rivera, matching CLIENTS[0] in coachData.
@@ -55,6 +56,7 @@ export default function ArticlesPage() {
   const [activeResource, setActiveResource] = useState<LibraryResource | null>(null);
   const [profile, setProfile] = useState<ProfileReport>(getProfileReport());
   const [feedback, setFeedback] = useState<Record<string, FeedbackValue>>({});
+  const [diagnostic, setDiagnostic] = useState<DiagnosticAnswers | null>(null);
 
   useEffect(() => {
     setBookmarks(getBookmarks());
@@ -62,6 +64,7 @@ export default function ArticlesPage() {
     setActivity(getActivityHistory());
     setProfile(getProfileReport());
     setFeedback(getResourceFeedback());
+    setDiagnostic(getDiagnosticAnswers());
   }, []);
 
   const filtered = RESOURCE_LIBRARY.filter((r) => {
@@ -88,6 +91,8 @@ export default function ArticlesPage() {
   const explorationResources = getExplorationResources(
     profile,
     [...bookmarks, ...assignedResources.map((a) => a.resource.id)],
+    3,
+    diagnostic,
   );
 
   const openResource = (resource: LibraryResource) => {
@@ -422,7 +427,7 @@ export default function ArticlesPage() {
                 <span className="text-xs font-semibold" style={{ color: '#7c3aed' }}>Personalised for you</span>
               </div>
               <p className="text-xs leading-relaxed mb-2.5" style={{ color: '#5b21b6' }}>
-                {getResourceInsight(activeResource, profile)}
+                {getResourceInsight(activeResource, profile, diagnostic)}
               </p>
               <div className="flex items-center gap-3">
                 <span className="text-xs" style={{ color: '#7c3aed' }}>Was this useful?</span>

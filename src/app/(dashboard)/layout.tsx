@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { normalizePathname } from '@/lib/utils';
+import { DIAGNOSTIC_PENDING_SESSION_KEY, getDiagnosticAnswers, saveDiagnosticAnswers } from '@/lib/diagnostic';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
+import DiagnosticModal from '@/components/DiagnosticModal';
 
 const ORG_STAFF_ROUTES = ['/dashboard', '/dashboard/profile'];
 const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources', '/dashboard/development', '/dashboard/profile'];
@@ -14,12 +16,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const pathname = normalizePathname(usePathname());
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace('/login');
     }
   }, [user, isLoading, router]);
+
+  // Member accounts complete the Vernon Insights diagnostic once per login.
+  useEffect(() => {
+    if (isLoading || !user || user.accountType !== 'member') return;
+    if (sessionStorage.getItem(DIAGNOSTIC_PENDING_SESSION_KEY) === 'true') {
+      setShowDiagnostic(true);
+      sessionStorage.removeItem(DIAGNOSTIC_PENDING_SESSION_KEY);
+    }
+  }, [user, isLoading]);
 
   // Organisation staff only have access to the aggregate dashboard, and
   // coaches only have access to their coaching-focused set of pages.
@@ -60,6 +72,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </main>
       </div>
+
+      {showDiagnostic && (
+        <DiagnosticModal
+          initialAnswers={getDiagnosticAnswers()}
+          onComplete={(answers) => {
+            saveDiagnosticAnswers(answers);
+            setShowDiagnostic(false);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CLIENTS, type Client, type TranscriptInsight } from '../coachData';
 import { getSharedNotes, type SharedNote } from '@/lib/sharedNotes';
+import { getDiagnosticInsights } from '@/lib/diagnostic';
 import {
   CheckCircle2, Circle, Plus, Sparkles, Clock, Target, MessageSquare, NotebookPen, Bot, Pencil, Save, Check, X,
 } from 'lucide-react';
@@ -28,6 +29,7 @@ export default function ClientsPage() {
   const selected = clients.find((c) => c.id === selectedId) ?? clients[0];
   const doneCount = selected.actionPlan.filter((i) => i.done).length;
   const clientNotes = sharedNotes.filter((n) => n.clientId === selected.id);
+  const insights = getDiagnosticInsights(selected.diagnosticAnswers);
 
   const toggleItem = (itemId: string) => {
     setClients((prev) => prev.map((c) => c.id !== selected.id ? c : {
@@ -185,6 +187,33 @@ export default function ClientsPage() {
                   <span className="text-xs font-medium">Next session</span>
                 </div>
                 <p className="text-sm" style={{ color: 'var(--foreground)' }}>{selected.nextSession}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Vernon Insights */}
+          <div className="rounded-2xl p-5" style={{ background: 'var(--surface)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles size={16} style={{ color: '#7c3aed' }} />
+              <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>Vernon Insights</h2>
+            </div>
+            <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>{insights.summary}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="rounded-xl p-2.5" style={{ background: 'var(--surface-muted)' }}>
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Top values</p>
+                <p className="text-xs font-semibold" style={{ color: 'var(--foreground)' }}>{insights.topValues.join(', ')}</p>
+              </div>
+              <div className="rounded-xl p-2.5" style={{ background: 'var(--surface-muted)' }}>
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Sectors</p>
+                <p className="text-xs font-semibold" style={{ color: 'var(--foreground)' }}>{insights.sectorLabels.join(', ')}</p>
+              </div>
+              <div className="rounded-xl p-2.5" style={{ background: 'var(--surface-muted)' }}>
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Readiness</p>
+                <p className="text-xs font-semibold" style={{ color: 'var(--foreground)' }}>{insights.readinessLabel}</p>
+              </div>
+              <div className="rounded-xl p-2.5" style={{ background: 'var(--surface-muted)' }}>
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Coaching focus</p>
+                <p className="text-xs font-semibold" style={{ color: 'var(--foreground)' }}>{insights.focusLabel}</p>
               </div>
             </div>
           </div>

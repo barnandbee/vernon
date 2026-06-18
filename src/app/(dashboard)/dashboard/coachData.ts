@@ -1,3 +1,5 @@
+import type { DiagnosticAnswers } from '@/lib/diagnostic';
+
 export type ActionItem = {
   id: string;
   text: string;
@@ -29,6 +31,7 @@ export type Client = {
   note: string;
   actionPlan: ActionItem[];
   sessionNotes: CoachingSession[];
+  diagnosticAnswers: DiagnosticAnswers;
 };
 
 export const CLIENTS: Client[] = [
@@ -67,6 +70,13 @@ export const CLIENTS: Client[] = [
         ],
       },
     ],
+    diagnosticAnswers: {
+      values: ['impact', 'growth', 'recognition'],
+      sectors: ['technology', 'nonprofit'],
+      readiness: 'planning',
+      experience: 'mid',
+      focus: 'leadership',
+    },
   },
   {
     id: 'maya-okafor',
@@ -118,6 +128,13 @@ export const CLIENTS: Client[] = [
         ],
       },
     ],
+    diagnosticAnswers: {
+      values: ['stability', 'recognition', 'collaboration'],
+      sectors: ['technology', 'creative'],
+      readiness: 'ready',
+      experience: 'senior',
+      focus: 'returning',
+    },
   },
   {
     id: 'tom-baker',
@@ -168,6 +185,13 @@ export const CLIENTS: Client[] = [
         ],
       },
     ],
+    diagnosticAnswers: {
+      values: ['impact', 'stability', 'growth'],
+      sectors: ['finance', 'sustainability'],
+      readiness: 'exploring',
+      experience: 'senior',
+      focus: 'career-change',
+    },
   },
   {
     id: 'aiko-tanaka',
@@ -219,6 +243,13 @@ export const CLIENTS: Client[] = [
         ],
       },
     ],
+    diagnosticAnswers: {
+      values: ['recognition', 'reward', 'impact'],
+      sectors: ['technology', 'finance'],
+      readiness: 'ready',
+      experience: 'senior',
+      focus: 'negotiation',
+    },
   },
 ];
 
