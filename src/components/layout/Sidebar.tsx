@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { normalizePathname } from '@/lib/utils';
 import VernonLogo from '@/components/VernonLogo';
 import {
-  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, LogOut, ChevronRight, Sparkles, UserCog
+  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, LogOut, ChevronRight, Sparkles, UserCog, FileBarChart
 } from 'lucide-react';
 
 type NavItem = { href: string; icon: LucideIcon; label: string; badge?: boolean };
@@ -26,6 +26,7 @@ const MEMBER_NAV: NavItem[] = [
 
 const ORG_STAFF_NAV: NavItem[] = [
   { href: '/dashboard', icon: Building2, label: 'Organisation Dashboard' },
+  { href: '/dashboard/reports', icon: FileBarChart, label: 'Reports' },
   { href: '/dashboard/profile', icon: UserCog, label: 'Profile' },
 ];
 

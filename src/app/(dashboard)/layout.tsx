@@ -9,7 +9,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 import DiagnosticModal from '@/components/DiagnosticModal';
 
-const ORG_STAFF_ROUTES = ['/dashboard', '/dashboard/profile'];
+const ORG_STAFF_ROUTES = ['/dashboard', '/dashboard/reports', '/dashboard/profile'];
 const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources', '/dashboard/development', '/dashboard/profile'];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
