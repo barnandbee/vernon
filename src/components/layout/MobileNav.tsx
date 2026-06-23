@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth';
 import { normalizePathname } from '@/lib/utils';
 import VernonLogo from '@/components/VernonLogo';
 import {
-  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, Menu, X, LogOut, Sparkles, UserCog, FileBarChart
+  LayoutDashboard, Compass, BookOpen, CalendarDays, GraduationCap, Target, Lightbulb, Users, MessageCircle, Building2, Menu, X, LogOut, Sparkles, UserCog, FileBarChart, Library, ShieldCheck
 } from 'lucide-react';
 
 type NavItem = { href: string; icon: LucideIcon; label: string; badge?: boolean };
@@ -40,6 +40,16 @@ const COACH_NAV: NavItem[] = [
   { href: '/dashboard/profile',    icon: UserCog,         label: 'Profile' },
 ];
 
+const ADMIN_NAV: NavItem[] = [
+  { href: '/dashboard',                     icon: LayoutDashboard, label: 'Admin Home' },
+  { href: '/dashboard/admin/users',         icon: Users,           label: 'Users' },
+  { href: '/dashboard/admin/organisations', icon: Building2,       label: 'Organisations' },
+  { href: '/dashboard/admin/resources',     icon: Library,         label: 'Resources' },
+  { href: '/dashboard/admin/reports',       icon: FileBarChart,    label: 'Report Fields' },
+  { href: '/dashboard/admin/permissions',   icon: ShieldCheck,     label: 'Permissions' },
+  { href: '/dashboard/profile',             icon: UserCog,         label: 'Profile' },
+];
+
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = normalizePathname(usePathname());
@@ -47,6 +57,7 @@ export default function MobileNav() {
   const { user, logout } = useAuth();
   const NAV = user?.accountType === 'org_staff' ? ORG_STAFF_NAV
     : user?.accountType === 'coach' ? COACH_NAV
+    : user?.accountType === 'platform_admin' ? ADMIN_NAV
     : MEMBER_NAV;
 
   const go = (href: string) => {

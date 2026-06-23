@@ -2,15 +2,17 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { DIAGNOSTIC_PENDING_SESSION_KEY } from './diagnostic';
+import type { AdminLevel } from './permissions';
 
 interface User {
   id: string;
   name: string;
   email: string;
   role: string;
-  accountType: 'member' | 'org_staff' | 'coach';
+  accountType: 'member' | 'org_staff' | 'coach' | 'platform_admin';
   orgName?: string;
   avatar?: string;
+  adminLevel?: AdminLevel;
 }
 
 interface AuthContextType {
@@ -38,6 +40,11 @@ export const COACH_DEMO_CREDENTIALS = {
   password: 'caterp1llar',
 };
 
+export const ADMIN_DEMO_CREDENTIALS = {
+  email: 'admin@vernon.app',
+  password: 'dr4gonfly',
+};
+
 const DEMO_USER: User = {
   id: 'demo-user',
   name: 'Jamie Rivera',
@@ -61,6 +68,15 @@ const COACH_DEMO_USER: User = {
   email: COACH_DEMO_CREDENTIALS.email,
   role: 'Career Coach · Demo Account',
   accountType: 'coach',
+};
+
+const ADMIN_DEMO_USER: User = {
+  id: 'admin-demo',
+  name: 'Jordan Blake',
+  email: ADMIN_DEMO_CREDENTIALS.email,
+  role: 'Platform Admin · Demo Account',
+  accountType: 'platform_admin',
+  adminLevel: 'super_admin',
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -92,9 +108,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       normalizedEmail === COACH_DEMO_CREDENTIALS.email &&
       password === COACH_DEMO_CREDENTIALS.password;
 
-    if (!isDemoAccount && !isOrgDemoAccount && !isCoachAccount) return false;
+    const isAdminAccount =
+      normalizedEmail === ADMIN_DEMO_CREDENTIALS.email &&
+      password === ADMIN_DEMO_CREDENTIALS.password;
 
-    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : isCoachAccount ? COACH_DEMO_USER : DEMO_USER;
+    if (!isDemoAccount && !isOrgDemoAccount && !isCoachAccount && !isAdminAccount) return false;
+
+    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : isCoachAccount ? COACH_DEMO_USER : isAdminAccount ? ADMIN_DEMO_USER : DEMO_USER;
 
     setUser(loggedInUser);
     localStorage.setItem('vernon_user', JSON.stringify(loggedInUser));

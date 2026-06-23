@@ -1,4 +1,4 @@
-import { RESOURCE_LIBRARY, type LibraryResource } from './resourceLibrary';
+import { getResourceLibrary, type LibraryResource } from './resourceLibrary';
 import type { ProfileReport } from './profile';
 import { FOCUS_OPTIONS, VALUE_OPTIONS, type DiagnosticAnswers, type ValueKey, type CoachingFocus } from './diagnostic';
 
@@ -103,7 +103,7 @@ export function getExplorationResources(
   count = 3,
   diagnostic?: DiagnosticAnswers | null,
 ): LibraryResource[] {
-  const scored = RESOURCE_LIBRARY
+  const scored = getResourceLibrary()
     .filter((r) => !excludeIds.includes(r.id))
     .map((r) => {
       const skillScore = matchedSkills(r, profile.skills).length;

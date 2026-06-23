@@ -65,6 +65,15 @@ const ORG_PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: st
   },
 ];
 
+const ADMIN_PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: string; description: string }[] = [
+  {
+    key: 'weeklyNewsletter',
+    icon: Mail,
+    title: 'Weekly newsletter',
+    description: 'Get a weekly email summarising platform-wide activity — new users, organisations, and resource updates.',
+  },
+];
+
 function PreferenceToggle({ icon: Icon, title, description, checked, onToggle, first, locked, lockedNote }: {
   icon: LucideIcon;
   title: string;
@@ -147,6 +156,8 @@ export default function ProfilePage() {
     ? COACH_PREFERENCE_ROWS
     : user?.accountType === 'org_staff'
     ? ORG_PREFERENCE_ROWS
+    : user?.accountType === 'platform_admin'
+    ? ADMIN_PREFERENCE_ROWS
     : MEMBER_PREFERENCE_ROWS;
 
   const viewedCount = activityHistory.filter((a) => a.action === 'viewed').length;
@@ -243,6 +254,8 @@ export default function ProfilePage() {
             ? 'Control what your clients see and how Vernon keeps in touch with you.'
             : user?.accountType === 'org_staff'
             ? 'Control AI access for your organisation and how Vernon keeps in touch with you.'
+            : user?.accountType === 'platform_admin'
+            ? 'Control how Vernon keeps in touch with you.'
             : 'Control how Vernon uses AI and keeps in touch with you.'}
         </p>
         <div>

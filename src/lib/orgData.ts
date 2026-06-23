@@ -19,7 +19,7 @@ export type MemberRow = {
   lastActive: string;
 };
 
-type ReportFieldBase = { id: string; group: string; title: string; description: string };
+type ReportFieldBase = { id: string; group: string; title: string; description: string; enabled?: boolean };
 
 export type ReportField =
   | (ReportFieldBase & { kind: 'stats'; items: StatItem[] })
@@ -311,10 +311,66 @@ export const REPORT_FIELDS: ReportField[] = [
   },
 ];
 
+export type ReportFieldConfig = { title?: string; description?: string; group?: string; enabled?: boolean };
+
+const CONFIG_STORAGE_KEY = 'vernon_report_field_config';
+
+function readConfig(): Record<string, ReportFieldConfig> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const stored = localStorage.getItem(CONFIG_STORAGE_KEY);
+    return stored ? (JSON.parse(stored) as Record<string, ReportFieldConfig>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeConfig(config: Record<string, ReportFieldConfig>) {
+  localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+}
+
+function applyConfig(field: ReportField, config: Record<string, ReportFieldConfig>): ReportField {
+  const override = config[field.id];
+  if (!override) return field;
+  return {
+    ...field,
+    title: override.title ?? field.title,
+    description: override.description ?? field.description,
+    group: override.group ?? field.group,
+    enabled: override.enabled ?? field.enabled,
+  };
+}
+
+// Admin-editable overrides (title/description/group/enabled) layered on top
+// of the static report fields — the underlying chart/numeric data is never
+// editable, only how each field is presented to org_staff.
+export function getReportFieldConfig(): Record<string, ReportFieldConfig> {
+  return readConfig();
+}
+
+export function setReportFieldConfig(id: string, updates: ReportFieldConfig): Record<string, ReportFieldConfig> {
+  const config = readConfig();
+  config[id] = { ...config[id], ...updates };
+  writeConfig(config);
+  return config;
+}
+
+// Every report field, including disabled ones — for the admin reports tool.
+export function getConfiguredReportFields(): ReportField[] {
+  const config = readConfig();
+  return REPORT_FIELDS.map((f) => applyConfig(f, config));
+}
+
+// Only the fields enabled for org_staff to see.
+export function getVisibleReportFields(): ReportField[] {
+  return getConfiguredReportFields().filter((f) => f.enabled !== false);
+}
+
 export function getReportField(id: string): ReportField | undefined {
-  return REPORT_FIELDS.find((f) => f.id === id);
+  return getVisibleReportFields().find((f) => f.id === id);
 }
 
 export function fieldsByGroup(): { group: string; fields: ReportField[] }[] {
-  return REPORT_GROUPS.map((group) => ({ group, fields: REPORT_FIELDS.filter((f) => f.group === group) }));
+  const fields = getVisibleReportFields();
+  return REPORT_GROUPS.map((group) => ({ group, fields: fields.filter((f) => f.group === group) }));
 }

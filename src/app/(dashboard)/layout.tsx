@@ -11,6 +11,15 @@ import DiagnosticModal from '@/components/DiagnosticModal';
 
 const ORG_STAFF_ROUTES = ['/dashboard', '/dashboard/reports', '/dashboard/profile'];
 const COACH_ROUTES = ['/dashboard', '/dashboard/clients', '/dashboard/schedule', '/dashboard/resources', '/dashboard/development', '/dashboard/profile'];
+const PLATFORM_ADMIN_ROUTES = [
+  '/dashboard',
+  '/dashboard/admin/users',
+  '/dashboard/admin/organisations',
+  '/dashboard/admin/resources',
+  '/dashboard/admin/reports',
+  '/dashboard/admin/permissions',
+  '/dashboard/profile',
+];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -40,6 +49,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (user?.accountType === 'org_staff' && !ORG_STAFF_ROUTES.includes(pathname)) {
       router.replace('/dashboard');
     } else if (user?.accountType === 'coach' && !COACH_ROUTES.includes(pathname)) {
+      router.replace('/dashboard');
+    } else if (user?.accountType === 'platform_admin' && !PLATFORM_ADMIN_ROUTES.includes(pathname)) {
       router.replace('/dashboard');
     }
   }, [user, isLoading, pathname, router]);

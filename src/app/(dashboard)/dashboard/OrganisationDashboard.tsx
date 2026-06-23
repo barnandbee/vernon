@@ -2,20 +2,20 @@
 
 import { useRouter } from 'next/navigation';
 import { Building2, ShieldCheck, FileBarChart, Sparkles } from 'lucide-react';
-import { KEY_METRICS, getReportField } from './orgData';
-import { getOrgHighlightInsights } from './orgInsights';
+import { KEY_METRICS, getReportField } from '@/lib/orgData';
+import { getOrgHighlightInsights } from '@/lib/orgInsights';
 import ReportFieldCard from '@/components/ReportFieldCard';
 
 export default function OrganisationDashboard({ orgName }: { orgName: string }) {
   const router = useRouter();
   const highlights = getOrgHighlightInsights();
 
-  const trendField = getReportField('engagement-trend')!;
-  const journeyField = getReportField('journey-bands')!;
-  const featureField = getReportField('feature-usage')!;
-  const viValuesField = getReportField('vi-values')!;
-  const coachingField = getReportField('coaching-frequency')!;
-  const memberField = getReportField('member-activity')!;
+  const trendField = getReportField('engagement-trend');
+  const journeyField = getReportField('journey-bands');
+  const featureField = getReportField('feature-usage');
+  const viValuesField = getReportField('vi-values');
+  const coachingField = getReportField('coaching-frequency');
+  const memberField = getReportField('member-activity');
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
@@ -81,24 +81,30 @@ export default function OrganisationDashboard({ orgName }: { orgName: string }) 
         </ul>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ReportFieldCard field={trendField} />
-        <ReportFieldCard field={journeyField} />
-      </div>
+      {(trendField || journeyField) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {trendField && <ReportFieldCard field={trendField} />}
+          {journeyField && <ReportFieldCard field={journeyField} />}
+        </div>
+      )}
 
-      <ReportFieldCard field={featureField} />
+      {featureField && <ReportFieldCard field={featureField} />}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ReportFieldCard field={viValuesField} />
-        <ReportFieldCard field={coachingField} />
-      </div>
+      {(viValuesField || coachingField) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {viValuesField && <ReportFieldCard field={viValuesField} />}
+          {coachingField && <ReportFieldCard field={coachingField} />}
+        </div>
+      )}
 
-      <div>
-        <ReportFieldCard field={memberField} />
-        <p className="text-xs mt-3 px-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-          Members can see exactly what&apos;s visible here — and what always stays private — on every section of their own dashboard.
-        </p>
-      </div>
+      {memberField && (
+        <div>
+          <ReportFieldCard field={memberField} />
+          <p className="text-xs mt-3 px-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            Members can see exactly what&apos;s visible here — and what always stays private — on every section of their own dashboard.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

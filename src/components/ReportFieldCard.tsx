@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowUpRight, Flame, CalendarDays } from 'lucide-react';
-import type { ReportField, BarItem, BandItem, StatItem, MemberRow } from '@/app/(dashboard)/dashboard/orgData';
+import type { ReportField, BarItem, BandItem, StatItem, MemberRow } from '@/lib/orgData';
 
 function StatsView({ items }: { items: StatItem[] }) {
   return (

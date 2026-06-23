@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, Send, Clock, Users, UserPlus, CheckCircle2 } from 'lucide-react';
 import { CLIENTS } from '../coachData';
-import { RESOURCE_LIBRARY, searchResources, TYPE_META, type LibraryResource } from '@/lib/resourceLibrary';
+import { RESOURCE_LIBRARY, searchResources, TYPE_META, getResourceLibrary, type LibraryResource } from '@/lib/resourceLibrary';
 import { assignResource } from '@/lib/library';
 import ResourceModal from '@/components/ResourceModal';
 
@@ -59,6 +59,11 @@ export default function ResourcesPage() {
   const [selectedClientId, setSelectedClientId] = useState(CLIENTS[0].id);
   const [activeResource, setActiveResource] = useState<LibraryResource | null>(null);
   const [justAssigned, setJustAssigned] = useState<string | null>(null);
+  const [library, setLibrary] = useState<LibraryResource[]>(RESOURCE_LIBRARY);
+
+  useEffect(() => {
+    setLibrary(getResourceLibrary());
+  }, []);
 
   const selectedClient = CLIENTS.find((c) => c.id === selectedClientId) ?? CLIENTS[0];
   const assignLabel = selectedClient.name.split(' ')[0];
@@ -184,7 +189,7 @@ export default function ResourcesPage() {
           Full Resource Library
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {RESOURCE_LIBRARY.map(renderCard)}
+          {library.map(renderCard)}
         </div>
       </div>
 

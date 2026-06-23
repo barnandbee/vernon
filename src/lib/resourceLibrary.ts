@@ -234,12 +234,53 @@ Boundaries also need consistency to hold. If you say you won't answer messages a
   },
 ];
 
+const STORAGE_KEY = 'vernon_resource_library';
+
+function read(): LibraryResource[] {
+  if (typeof window === 'undefined') return RESOURCE_LIBRARY;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? (JSON.parse(stored) as LibraryResource[]) : RESOURCE_LIBRARY;
+  } catch {
+    return RESOURCE_LIBRARY;
+  }
+}
+
+function write(resources: LibraryResource[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(resources));
+}
+
+// The live resource library — seeded from RESOURCE_LIBRARY, then overlaid
+// with any admin edits/additions/deletions made via the platform admin tools.
+export function getResourceLibrary(): LibraryResource[] {
+  return read();
+}
+
+export function createLibraryResource(input: Omit<LibraryResource, 'id'>): LibraryResource {
+  const resource: LibraryResource = { ...input, id: `res-${Date.now()}` };
+  write([resource, ...read()]);
+  return resource;
+}
+
+export function updateLibraryResource(id: string, updates: Partial<Omit<LibraryResource, 'id'>>): LibraryResource[] {
+  const updated = read().map((r) => (r.id === id ? { ...r, ...updates } : r));
+  write(updated);
+  return updated;
+}
+
+export function deleteLibraryResource(id: string): LibraryResource[] {
+  const updated = read().filter((r) => r.id !== id);
+  write(updated);
+  return updated;
+}
+
 // Naive keyword match across title, summary, category and tags — a stand-in
 // for an AI search step over the resource library.
 export function searchResources(query: string): LibraryResource[] {
+  const library = getResourceLibrary();
   const words = query.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 2);
 
-  const scored = RESOURCE_LIBRARY.map((resource) => {
+  const scored = library.map((resource) => {
     const haystack = [resource.title, resource.summary, resource.category, ...resource.tags].join(' ').toLowerCase();
     const score = words.reduce((acc, word) => acc + (haystack.includes(word) ? 1 : 0), 0);
     return { resource, score };
@@ -247,5 +288,5 @@ export function searchResources(query: string): LibraryResource[] {
 
   const matched = scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score).map((s) => s.resource);
 
-  return matched.length > 0 ? matched.slice(0, 4) : RESOURCE_LIBRARY.slice(0, 3);
+  return matched.length > 0 ? matched.slice(0, 4) : library.slice(0, 3);
 }

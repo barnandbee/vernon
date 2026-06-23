@@ -6,7 +6,7 @@ import {
   Search, Clock, Tag, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Layers, History, UserRound,
   Sparkles, ThumbsUp, ThumbsDown, Shuffle,
 } from 'lucide-react';
-import { RESOURCE_LIBRARY, TYPE_META, type LibraryResource, type ResourceType } from '@/lib/resourceLibrary';
+import { RESOURCE_LIBRARY, TYPE_META, getResourceLibrary, type LibraryResource, type ResourceType } from '@/lib/resourceLibrary';
 import {
   getBookmarks, toggleBookmark, getAssignedResources, getActivityHistory, logActivity,
   type ActivityEntry, type AssignedResource, type ActivityAction,
@@ -57,6 +57,7 @@ export default function ArticlesPage() {
   const [profile, setProfile] = useState<ProfileReport>(getProfileReport());
   const [feedback, setFeedback] = useState<Record<string, FeedbackValue>>({});
   const [diagnostic, setDiagnostic] = useState<DiagnosticAnswers | null>(null);
+  const [library, setLibrary] = useState<LibraryResource[]>(RESOURCE_LIBRARY);
 
   useEffect(() => {
     setBookmarks(getBookmarks());
@@ -65,9 +66,10 @@ export default function ArticlesPage() {
     setProfile(getProfileReport());
     setFeedback(getResourceFeedback());
     setDiagnostic(getDiagnosticAnswers());
+    setLibrary(getResourceLibrary());
   }, []);
 
-  const filtered = RESOURCE_LIBRARY.filter((r) => {
+  const filtered = library.filter((r) => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) ||
       r.summary.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = activeCategory === 'All' || r.category === activeCategory;
@@ -81,11 +83,11 @@ export default function ArticlesPage() {
 
   const assignedResources = assigned
     .filter((a) => a.clientId === MEMBER_CLIENT_ID)
-    .map((a) => ({ assignment: a, resource: RESOURCE_LIBRARY.find((r) => r.id === a.resourceId) }))
+    .map((a) => ({ assignment: a, resource: library.find((r) => r.id === a.resourceId) }))
     .filter((x): x is { assignment: AssignedResource; resource: LibraryResource } => !!x.resource);
 
   const bookmarkedResources = bookmarks
-    .map((id) => RESOURCE_LIBRARY.find((r) => r.id === id))
+    .map((id) => library.find((r) => r.id === id))
     .filter((r): r is LibraryResource => !!r);
 
   const explorationResources = getExplorationResources(

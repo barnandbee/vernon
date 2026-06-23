@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import OrganisationDashboard from './OrganisationDashboard';
 import CoachDashboard from './CoachDashboard';
+import AdminDashboard from './AdminDashboard';
 import { ACTION_ITEMS, SESSION_NOTES, QUICK_WINS } from './journeyData';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle,
@@ -85,6 +86,10 @@ export default function DashboardPage() {
 
   if (user?.accountType === 'coach') {
     return <CoachDashboard />;
+  }
+
+  if (user?.accountType === 'platform_admin') {
+    return <AdminDashboard />;
   }
 
   const openCoachItems = ACTION_ITEMS.filter((a) => a.source === 'coach' && a.status !== 'done').length;

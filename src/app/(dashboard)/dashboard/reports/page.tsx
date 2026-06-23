@@ -1,22 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import { FileBarChart, ShieldCheck, Sparkles, Download, RefreshCw, CheckSquare, Square } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { REPORT_FIELDS, fieldsByGroup, type ReportField } from '../orgData';
-import { getOrgFieldInsights } from '../orgInsights';
+import { getVisibleReportFields, fieldsByGroup, type ReportField } from '@/lib/orgData';
+import { getOrgFieldInsights } from '@/lib/orgInsights';
 import ReportFieldCard from '@/components/ReportFieldCard';
-
-const GROUPS = fieldsByGroup();
-const ALL_IDS = REPORT_FIELDS.map((f) => f.id);
 
 export default function ReportsPage() {
   const { user } = useAuth();
   const orgName = user?.orgName ?? 'your organisation';
 
-  const [selectedIds, setSelectedIds] = useState<string[]>(ALL_IDS);
-  const [ranIds, setRanIds] = useState<string[]>(ALL_IDS);
+  const [groups, setGroups] = useState<{ group: string; fields: ReportField[] }[]>([]);
+  const [allIds, setAllIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [ranIds, setRanIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const ids = getVisibleReportFields().map((f) => f.id);
+    setGroups(fieldsByGroup());
+    setAllIds(ids);
+    setSelectedIds(ids);
+    setRanIds(ids);
+  }, []);
 
   const toggleField = (id: string) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -28,7 +35,8 @@ export default function ReportsPage() {
     setSelectedIds((prev) => (allSelected ? prev.filter((id) => !ids.includes(id)) : [...new Set([...prev, ...ids])]));
   };
 
-  const ranFields = REPORT_FIELDS.filter((f) => ranIds.includes(f.id));
+  const allFields = groups.flatMap((g) => g.fields);
+  const ranFields = allFields.filter((f) => ranIds.includes(f.id));
   const insights = getOrgFieldInsights(ranIds);
 
   const handleDownloadPdf = () => {
@@ -136,7 +144,7 @@ export default function ReportsPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setSelectedIds(ALL_IDS)}
+              onClick={() => setSelectedIds(allIds)}
               className="text-xs font-semibold px-2.5 py-1.5 rounded-lg"
               style={{ color: 'var(--primary)', background: 'var(--surface-muted)' }}
             >
@@ -153,7 +161,7 @@ export default function ReportsPage() {
         </div>
 
         <div className="space-y-4">
-          {GROUPS.map(({ group, fields }) => (
+          {groups.map(({ group, fields }) => (
             <div key={group}>
               <button
                 onClick={() => toggleGroup(fields)}
@@ -186,7 +194,7 @@ export default function ReportsPage() {
 
         <div className="flex items-center justify-between gap-3 flex-wrap pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            {selectedIds.length} of {ALL_IDS.length} fields selected
+            {selectedIds.length} of {allIds.length} fields selected
           </p>
           <button
             onClick={() => setRanIds(selectedIds)}

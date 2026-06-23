@@ -12,36 +12,37 @@ Vernon is currently a **front-end prototype / demo**, not a production system:
 - **Stack:** Next.js 16.2.7 (App Router, Turbopack), React 19.2.4, TypeScript, Tailwind CSS v4, `lucide-react` icons, `jspdf` for PDF export.
 - **No real backend.** Every feature is backed by mock data (static arrays in `src/lib` and `src/app/(dashboard)/dashboard/coachData.ts` / `journeyData.ts`) persisted client-side only, via `localStorage`/`sessionStorage`. This gives the demo persistence across reloads in one browser, but nothing is shared across devices, users, or sessions in reality.
 - **Deployment:** runs locally (`npm run dev`) or as a static export to GitHub Pages at `https://barnandbee.github.io/vernon/` (`GITHUB_PAGES=true npm run build`); also deployable as a normal Next.js app (e.g. Vercel).
-- **Three account types** (member, coach, organisation staff) are simulated end-to-end via seeded demo accounts rather than real sign-up/auth.
+- **Four account types** (member, coach, organisation staff, platform admin) are simulated end-to-end via seeded demo accounts rather than real sign-up/auth.
 
 ## Accessing the demo
 
-The whole site sits behind a site-wide passcode gate (`SiteGate`, separate from login), then a login screen with three seeded accounts, one per persona:
+The whole site sits behind a site-wide passcode gate (`SiteGate`, separate from login), then a login screen with four seeded accounts, one per persona:
 
 | Persona | Account type | Email | Password | Demo identity |
 |---|---|---|---|---|
 | Member / coachee | `member` | demo@vernon.app | 1nsects | Jamie Rivera |
 | Organisation staff | `org_staff` | org@vernon.app | o1lbeetle | Priya Anand · Lighthouse Partners |
 | Coach | `coach` | coach@vernon.app | caterp1llar | Sarah Mitchell |
+| Platform admin | `platform_admin` | admin@vernon.app | dr4gonfly | Jordan Blake · Super Admin |
 
 ## Account types and navigation
 
 Navigation is role-based — each account type sees a different sidebar/mobile-nav, and the dashboard layout redirects any attempt to visit a route outside that role's allowed set.
 
-| Member | Coach | Organisation staff |
-|---|---|---|
-| Home | Coach Home | Organisation Dashboard |
-| My Journey | My Clients | Profile |
-| Coaching Calendar | Schedule | |
-| Learning | Resource Finder | |
-| Resources | CPD & Training | |
-| Practice | Profile | |
-| Reflections | | |
-| Community | | |
-| Career Chat | | |
-| Profile | | |
+| Member | Coach | Organisation staff | Platform admin |
+|---|---|---|---|
+| Home | Coach Home | Organisation Dashboard | Admin Home |
+| My Journey | My Clients | Reports | Users |
+| Coaching Calendar | Schedule | Profile | Organisations |
+| Learning | Resource Finder | | Resources |
+| Resources | CPD & Training | | Report Fields |
+| Practice | Profile | | Permissions |
+| Reflections | | | Profile |
+| Community | | | |
+| Career Chat | | | |
+| Profile | | | |
 
-Organisation staff intentionally have the smallest surface area: an aggregate dashboard and their own profile, with no visibility into any individual member's content.
+Organisation staff intentionally have the smallest surface area: an aggregate dashboard, a standalone reports view, and their own profile, with no visibility into any individual member's content.
 
 ## Feature tour
 
@@ -69,6 +70,18 @@ Organisation staff intentionally have the smallest surface area: an aggregate da
 ### Organisation staff experience
 
 - **Organisation Dashboard** — anonymised, org-wide metrics only: active vs. invited members, weekly engagement (with trend), total reflections logged, sessions completed, a journey-stage breakdown (e.g. "building momentum," "nearing goals"), a feature-adoption heatmap, a sample member activity table, and a "Download PDF Report" export. A persistent privacy note (`OrgPrivacyNote`) makes clear that reflection content, chat conversations, and coaching notes are never visible at the org level — only aggregate participation.
+- **Reports** — the same org-wide metric cards as the dashboard, on their own page, filtered to whatever the platform admin has currently enabled (see Report Fields below).
+
+### Platform admin experience
+
+- **Admin Home** — stat cards (platform users, organisations, library resources, enabled report fields), "recently added" panels for users and organisations, and quick-access tiles into each admin tool below.
+- **Users** — add, edit, and delete platform users (name, email, role/title, account type, status) — the same roster that backs every login across all four personas.
+- **Organisations** — add, edit, and delete organisations (name, primary contact, plan, member count), the records that populate the org-staff dashboard and admin stat cards.
+- **Resources** — add, edit, and delete entries in the shared resource library (title, summary, category, author, date) that members see in Resources and coaches see in Resource Finder, with changes reflected immediately.
+- **Report Fields** — rename, redescribe, regroup, or enable/disable any metric card shown on the organisation dashboard and org-staff Reports page. Only the field's visibility and copy are admin-editable; the underlying numbers stay static demo data, and changes propagate live to every org_staff session.
+- **Permissions** — the fixed four-tier model (Super Admin, Admin, Editor, Viewer) below, shown as a capability matrix, plus a per-admin dropdown (Super Admin only) to reassign another admin's level.
+
+All five admin tools share the same pattern: every page computes whether the signed-in admin's level grants the matching capability and, if not, hides its add/edit/delete controls and shows a read-only warning banner instead — enforced both in the UI and again inside each mutating handler, not just by hiding buttons.
 
 ## Cross-cutting systems
 
@@ -102,7 +115,7 @@ A 5-question diagnostic — top 3 work values, sector interest, readiness to mak
 The app is intentionally a clickable, end-to-end prototype. The most natural next steps, in roughly the order they'd unlock real-world use:
 
 1. **Real backend and persistence.** Replace the localStorage-backed mock modules with an actual database and API so data survives across devices and supports many real organisations, coaches, and members concurrently.
-2. **Real authentication.** Replace the three seeded demo accounts and shared site passcode with real sign-up/login (email+password or SSO), per-organisation tenancy, and a member invite flow — the org dashboard already implies invites exist ("86 active of 120 invited").
+2. **Real authentication.** Replace the four seeded demo accounts and shared site passcode with real sign-up/login (email+password or SSO), per-organisation tenancy, and a member invite flow — the org dashboard already implies invites exist ("86 active of 120 invited").
 3. **A genuine LLM-backed Career Chat.** Today's chat matches keywords to canned replies; swapping in a real model would let it have grounded, multi-turn coaching conversations — this was raised and intentionally deferred during development, but is the most visible "fake AI" in the app today.
 4. **Fuller use of the Vernon Insights diagnostic.** Sector preference, readiness, and experience level are captured but not yet wired into resource matching, because the resource library has no sector/seniority tags yet. Tagging the library and extending `resourceInsights.ts` would let recommendations use the whole diagnostic, not just values and coaching focus.
 5. **Real scheduling.** Coaching Calendar and Schedule currently read/write static mock appointments; real coach availability, conflict handling, calendar sync (Google/Outlook), and video-call links (Zoom/Meet) would make booking actually work.
