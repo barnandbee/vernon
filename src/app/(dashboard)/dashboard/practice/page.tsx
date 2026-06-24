@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Target, Compass, Ear, FlaskConical, Mountain, Sparkle, Sparkles, RefreshCw } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 
 type DimensionKey = 'uncertainty' | 'feedback' | 'assumptions' | 'persistence' | 'curiosity';
@@ -40,7 +41,8 @@ const DIMENSIONS: { key: DimensionKey; label: string; statement: string; icon: L
   },
 ];
 
-const SUGGESTIONS: Record<DimensionKey, string[]> = {
+// Jamie Rivera — working professional.
+const JAMIE_SUGGESTIONS: Record<DimensionKey, string[]> = {
   uncertainty: [
     'Say yes to one thing this week before you feel fully ready.',
     "Apply for something even if you don't tick every box.",
@@ -68,11 +70,81 @@ const SUGGESTIONS: Record<DimensionKey, string[]> = {
   ],
 };
 
+// Zara Ahmed — Year 12 student.
+const ZARA_SUGGESTIONS: Record<DimensionKey, string[]> = {
+  uncertainty: [
+    'Say yes to one thing this week before you feel fully ready — a taster day, a new society, a conversation.',
+    "Apply for that work experience placement even if you don't feel 'ready' yet.",
+    'Try a different approach to a piece of homework or a project and notice what happens.',
+  ],
+  feedback: [
+    'Ask a teacher or mentor for one honest piece of feedback on something you’re working on.',
+    'After your next presentation or class discussion, ask: "What\'s one thing I could do differently?"',
+    "Re-read old feedback from a teacher and note what you've already acted on.",
+  ],
+  assumptions: [
+    'Have an informal chat with someone already doing a job you think you want.',
+    'Message someone a few years ahead of you — an older student, a family friend — and ask about their path.',
+    'Write down one belief about your future, then one way to test it.',
+  ],
+  persistence: [
+    'Revisit a subject or activity you gave up on and try one more approach.',
+    'Break a stalled goal — like finishing a personal statement — into a smaller next step you can do today.',
+    'Write down what a recent setback, like a tough mark, taught you.',
+  ],
+  curiosity: [
+    'Strike up a conversation with someone outside your usual friend group.',
+    'Spend 20 minutes exploring a topic with no exam or deadline in mind.',
+    "Ask 'why' one extra time in your next conversation.",
+  ],
+};
+
+// Marcus Reid — final-year university student.
+const MARCUS_SUGGESTIONS: Record<DimensionKey, string[]> = {
+  uncertainty: [
+    'Say yes to one thing this week before you feel fully ready — a networking event, a stretch task, an application.',
+    "Apply for a graduate scheme even if you don't tick every box.",
+    'Try a new approach to a familiar assignment or task and notice what happens.',
+  ],
+  feedback: [
+    'Ask a placement manager or course tutor for one honest piece of feedback this week.',
+    'After your next interview or mock interview, ask: "What\'s one thing I could do differently?"',
+    "Re-read old feedback from your placement and note what you've already acted on.",
+  ],
+  assumptions: [
+    'Have an informal chat with someone already on the grad scheme you’re considering.',
+    'Message a graduate one or two years ahead of you and ask about their path.',
+    'Write down one belief about your career, then one way to test it.',
+  ],
+  persistence: [
+    'Revisit an application you gave up on and try one more approach.',
+    'Break a stalled goal into a smaller next step you can do today.',
+    'Write down what a recent setback, like a rejection or a tough assessment centre, taught you.',
+  ],
+  curiosity: [
+    'Strike up a conversation with someone outside your usual course or friend group.',
+    'Spend 20 minutes exploring a topic with no application or deadline in mind.',
+    "Ask 'why' one extra time in your next conversation.",
+  ],
+};
+
+const SUGGESTIONS_BY_USER: Record<string, Record<DimensionKey, string[]>> = {
+  'demo-user': JAMIE_SUGGESTIONS,
+  'zara-ahmed': ZARA_SUGGESTIONS,
+  'marcus-reid': MARCUS_SUGGESTIONS,
+};
+
+function getSuggestions(userId?: string | null): Record<DimensionKey, string[]> {
+  return SUGGESTIONS_BY_USER[userId ?? ''] ?? JAMIE_SUGGESTIONS;
+}
+
 const initialScores = (): Record<DimensionKey, number> => ({
   uncertainty: 3, feedback: 3, assumptions: 3, persistence: 3, curiosity: 3,
 });
 
 export default function PracticePage() {
+  const { user } = useAuth();
+  const suggestions = getSuggestions(user?.id);
   const [scores, setScores] = useState<Record<DimensionKey, number>>(initialScores);
   const [submitted, setSubmitted] = useState(false);
 
@@ -173,7 +245,7 @@ export default function PracticePage() {
                   <div key={d.key}>
                     <p className="text-xs font-medium mb-1" style={{ color: '#5b21b6' }}>{d.label}</p>
                     <ul className="space-y-1">
-                      {SUGGESTIONS[d.key].map((s, i) => (
+                      {suggestions[d.key].map((s, i) => (
                         <li key={i} className="text-xs leading-relaxed pl-3 relative" style={{ color: '#5b21b6' }}>
                           <span className="absolute left-0">•</span>{s}
                         </li>

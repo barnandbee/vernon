@@ -232,6 +232,92 @@ Boundaries also need consistency to hold. If you say you won't answer messages a
     author: 'Vernon Coaching Team',
     date: 'Jun 10, 2026',
   },
+  {
+    id: 'res-17',
+    type: 'Article',
+    title: 'Choosing Subjects Without Boxing Yourself In',
+    summary: 'A levels, IB, or college options — how to keep doors open while still making a real choice.',
+    content: `Choosing subjects can feel like the first "permanent" decision of your life, which is exactly why it feels so heavy. It helps to separate the choice from your identity — picking a subject isn't promising to become a certain kind of person forever, it's just deciding what to spend the next year or two getting good at.
+
+A useful rule of thumb: keep at least one subject in the mix that keeps options broadly open, even if your current best guess is quite specific. Talk to people actually doing the course, job or apprenticeship you're picturing — what they do day-to-day is often surprisingly different from the subject description.
+
+Treat this as a step, not a verdict. Almost every path allows for a correction later — a different module, a foundation year, a switch after the first term. The goal right now isn't to get it perfectly right, it's to make a reasonable choice and stay curious about whether it still fits in six months.`,
+    category: 'Career Change',
+    tags: ['pivot', 'transition', 'exploration', 'subject choices'],
+    mins: 5,
+    author: 'Vernon Coaching Team',
+    date: 'Jun 9, 2026',
+  },
+  {
+    id: 'res-18',
+    type: 'Article',
+    title: 'What Work Experience Actually Teaches You',
+    summary: 'Beyond the CV line — how to get real signal out of a placement, shadow day or part-time job.',
+    content: `The most common mistake with work experience is treating it purely as a line for your CV. Its real value is as a cheap, low-stakes way to test an assumption — "would I actually like this?" — before committing years to finding out the hard way.
+
+Go in with two or three questions you genuinely want answered: What does the average Tuesday look like? What's the most stressful part of this job? What do people here wish someone had told them earlier? Notice the rhythm of the day and who talks to whom — it tells you more about the culture than any job description.
+
+Afterwards, write down three things that surprised you, good or bad, while they're still fresh. That short list is worth more than the certificate — it's real data about what you do and don't want, gathered first-hand instead of guessed at.`,
+    category: 'Skills',
+    tags: ['interview', 'confidence', 'practice', 'work experience'],
+    mins: 6,
+    author: 'Mark Davies',
+    date: 'Jun 7, 2026',
+  },
+  {
+    id: 'res-19',
+    type: 'Toolkit',
+    title: 'Apprenticeships vs. University: A Side-by-Side Worksheet',
+    summary: 'A worksheet for comparing two real routes for the same subject area — cost, structure, and what each actually leads to.',
+    category: 'Career Change',
+    tags: ['pivot', 'exploration', 'apprenticeships', 'university'],
+    mins: 20,
+    author: 'Vernon Coaching Team',
+    date: 'Jun 11, 2026',
+  },
+  {
+    id: 'res-20',
+    type: 'Article',
+    title: "Graduate Scheme or Master's? How to Decide",
+    summary: 'A framework for weighing a job offer against further study when both feel like reasonable options.',
+    content: `It's easy to frame this as a permanent fork in the road — as if choosing a graduate scheme rules out further study forever, or vice versa. In practice, most people who do a Master's later still get there, and most schemes will still exist in a year or two if you reapply.
+
+Instead of weighing prestige, weigh what each path actually costs and opens up right now: time, money, and what doors it realistically gets you to within two years. A scheme gives you income, structure and real workplace evidence quickly. A Master's can deepen expertise or pivot you somewhere a scheme can't — but only if you have a specific reason for it, not a vague sense that it sounds impressive.
+
+Decide based on a concrete near-term goal rather than which option sounds better at a dinner party. And remember this isn't your last career decision — it's one step, and you're allowed to revisit it.`,
+    category: 'Career Change',
+    tags: ['transition', 'career change', 'graduate schemes'],
+    mins: 6,
+    author: 'Dr. Sarah Mitchell',
+    date: 'Jun 8, 2026',
+  },
+  {
+    id: 'res-21',
+    type: 'Article',
+    title: 'Turning Your Placement Year Into Interview Gold',
+    summary: 'How to mine a single year of experience for stories that actually land in graduate interviews.',
+    content: `Most students undersell their placement year, describing it as "just a placement" rather than real, evidence-backed experience. A year of actual workplace exposure is worth more than people give it credit for — the trick is learning to talk about it that way.
+
+Don't just list tasks. Look for moments with friction in them — a deadline that nearly slipped, a disagreement with a colleague, a project that didn't go as planned — because that's where the decisions and judgement calls live, and that's what interviewers are actually trying to assess. A clean list of duties tells them nothing about how you think.
+
+Once you've found three or four of these moments, practice telling them out loud, not just writing them down. The story that sounds natural in a real conversation is the one that will actually land when it counts.`,
+    category: 'Skills',
+    tags: ['interview', 'storytelling', 'confidence', 'placement year'],
+    mins: 5,
+    author: 'Lisa Chen',
+    date: 'Jun 5, 2026',
+  },
+  {
+    id: 'res-22',
+    type: 'Podcast',
+    title: 'From Lecture Halls to Job Offers: Making Graduate Applications Less Daunting',
+    summary: 'Two early-careers coaches talk through what actually moves the needle in graduate applications.',
+    category: 'Skills',
+    tags: ['interview', 'practice', 'graduate schemes'],
+    mins: 22,
+    author: 'Vernon Conversations',
+    date: 'Jun 10, 2026',
+  },
 ];
 
 const STORAGE_KEY = 'vernon_resource_library';

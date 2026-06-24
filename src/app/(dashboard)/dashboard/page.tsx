@@ -6,7 +6,7 @@ import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import OrganisationDashboard from './OrganisationDashboard';
 import CoachDashboard from './CoachDashboard';
 import AdminDashboard from './AdminDashboard';
-import { ACTION_ITEMS, SESSION_NOTES, QUICK_WINS } from './journeyData';
+import { getJourneyContent } from './journeyData';
 import {
   BookOpen, CalendarDays, Lightbulb, MessageCircle,
   TrendingUp, Star, Clock, ArrowRight, Sparkles, GraduationCap, Target, Heart, Bell
@@ -63,16 +63,58 @@ const QUICK_ACTIONS = [
   },
 ];
 
-const UPCOMING = [
-  { day: 'Mon', date: '12', title: 'Strategy Session', coach: 'Sarah Mitchell', time: '10:00 AM', type: 'Coaching' },
-  { day: 'Wed', date: '14', title: 'Career Goals Review', coach: 'James Park', time: '2:00 PM', type: 'Review' },
-];
+type UpcomingSession = { day: string; date: string; title: string; coach: string; time: string; type: string };
+type RecentArticle = { title: string; tag: string; mins: number };
+type HomeContent = { upcoming: UpcomingSession[]; articles: RecentArticle[]; progress: number; streak: number; reflections: number };
 
-const RECENT_ARTICLES = [
-  { title: 'Navigating Career Transitions in Your 30s', tag: 'Growth', mins: 5 },
-  { title: 'Building a Personal Brand That Opens Doors', tag: 'Branding', mins: 7 },
-  { title: 'How to Ask for the Promotion You Deserve', tag: 'Advancement', mins: 4 },
-];
+const HOME_CONTENT_BY_USER: Record<string, HomeContent> = {
+  'demo-user': {
+    upcoming: [
+      { day: 'Mon', date: '12', title: 'Strategy Session', coach: 'Sarah Mitchell', time: '10:00 AM', type: 'Coaching' },
+      { day: 'Wed', date: '14', title: 'Career Goals Review', coach: 'James Park', time: '2:00 PM', type: 'Review' },
+    ],
+    articles: [
+      { title: 'Navigating Career Transitions in Your 30s', tag: 'Growth', mins: 5 },
+      { title: 'Building a Personal Brand That Opens Doors', tag: 'Branding', mins: 7 },
+      { title: 'How to Ask for the Promotion You Deserve', tag: 'Advancement', mins: 4 },
+    ],
+    progress: 42,
+    streak: 7,
+    reflections: 3,
+  },
+  'zara-ahmed': {
+    upcoming: [
+      { day: 'Sat', date: '13', title: 'Check-in: Options & Next Steps', coach: 'Sarah Mitchell', time: '4:00 PM', type: 'Coaching' },
+      { day: 'Mon', date: '15', title: 'Subject Choices Review', coach: 'James Park', time: '1:00 PM', type: 'Review' },
+    ],
+    articles: [
+      { title: 'Choosing Subjects Without Boxing Yourself In', tag: 'Choices', mins: 5 },
+      { title: 'What Work Experience Actually Teaches You', tag: 'Experience', mins: 6 },
+      { title: 'Five Body Language Tips for Interviews', tag: 'Confidence', mins: 8 },
+    ],
+    progress: 35,
+    streak: 4,
+    reflections: 2,
+  },
+  'marcus-reid': {
+    upcoming: [
+      { day: 'Thu', date: '11', title: 'Career Strategy Session', coach: 'Sarah Mitchell', time: '2:00 PM', type: 'Coaching' },
+      { day: 'Sat', date: '13', title: 'Application Strategy Review', coach: 'James Park', time: '11:00 AM', type: 'Review' },
+    ],
+    articles: [
+      { title: 'Turning Your Placement Year Into Interview Gold', tag: 'Placements', mins: 5 },
+      { title: "Graduate Scheme or Master's? How to Decide", tag: 'Decisions', mins: 6 },
+      { title: 'The STAR Method for Interview Storytelling', tag: 'Interviews', mins: 20 },
+    ],
+    progress: 48,
+    streak: 9,
+    reflections: 5,
+  },
+};
+
+function getHomeContent(userId?: string | null): HomeContent {
+  return HOME_CONTENT_BY_USER[userId ?? ''] ?? HOME_CONTENT_BY_USER['demo-user'];
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -92,7 +134,9 @@ export default function DashboardPage() {
     return <AdminDashboard />;
   }
 
-  const openCoachItems = ACTION_ITEMS.filter((a) => a.source === 'coach' && a.status !== 'done').length;
+  const { actionItems, sessionNotes, quickWins } = getJourneyContent(user?.id);
+  const { upcoming, articles, progress, streak, reflections } = getHomeContent(user?.id);
+  const openCoachItems = actionItems.filter((a) => a.source === 'coach' && a.status !== 'done').length;
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
@@ -111,7 +155,7 @@ export default function DashboardPage() {
           style={{ background: '#f0fdf4', color: '#15803d' }}
         >
           <Star size={14} className="fill-current" />
-          <span>7-day streak</span>
+          <span>{streak}-day streak</span>
         </div>
       </div>
 
@@ -123,7 +167,7 @@ export default function DashboardPage() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Sarah has updated your journey</p>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            {openCoachItems} action item{openCoachItems === 1 ? '' : 's'} from your coach, {SESSION_NOTES.length} session notes, and {QUICK_WINS.length} quick wins are waiting for you.
+            {openCoachItems} action item{openCoachItems === 1 ? '' : 's'} from your coach, {sessionNotes.length} session notes, and {quickWins.length} quick wins are waiting for you.
           </p>
         </div>
         <button
@@ -142,19 +186,19 @@ export default function DashboardPage() {
             <TrendingUp size={18} style={{ color: 'var(--primary)' }} />
             <span className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Career Journey Progress</span>
           </div>
-          <span className="text-sm font-bold" style={{ color: 'var(--primary)' }}>42%</span>
+          <span className="text-sm font-bold" style={{ color: 'var(--primary)' }}>{progress}%</span>
         </div>
         <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--surface-muted)' }}>
           <div
             className="h-full rounded-full transition-all"
-            style={{ width: '42%', background: 'var(--primary)' }}
+            style={{ width: `${progress}%`, background: 'var(--primary)' }}
           />
         </div>
         <div className="flex items-center justify-between gap-2 mt-3 flex-wrap">
           <div className="flex items-center gap-1.5">
             <Sparkles size={13} style={{ color: 'var(--accent)' }} />
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              You&apos;re making great progress — 3 reflections completed this month
+              You&apos;re making great progress — {reflections} reflection{reflections === 1 ? '' : 's'} completed this month
             </p>
           </div>
           <button
@@ -209,7 +253,7 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="space-y-3">
-            {UPCOMING.map((s) => (
+            {upcoming.map((s) => (
               <div
                 key={s.date}
                 className="flex items-center gap-4 p-3 rounded-xl"
@@ -254,7 +298,7 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="space-y-3">
-            {RECENT_ARTICLES.map((a, i) => (
+            {articles.map((a, i) => (
               <div key={i} className="flex items-start gap-3 p-3 rounded-xl cursor-pointer"
                 style={{ background: 'var(--surface-muted)' }}>
                 <div

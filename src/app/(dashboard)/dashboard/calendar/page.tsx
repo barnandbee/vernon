@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/lib/auth';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import { ChevronLeft, ChevronRight, Clock, Video, MapPin, Plus, User, CheckCircle2 } from 'lucide-react';
 
@@ -14,13 +15,40 @@ type Session = {
   notes?: string;
 };
 
-const SESSIONS: Session[] = [
+// Jamie Rivera — working professional.
+const JAMIE_SESSIONS: Session[] = [
   { id: 1, day: 12, title: 'Career Strategy Session', coach: 'Sarah Mitchell', time: '10:00 AM', duration: '60 min', type: 'online', status: 'confirmed', notes: 'Bring your 6-month plan notes' },
   { id: 2, day: 14, title: 'Career Goals Review', coach: 'James Park', time: '2:00 PM', duration: '45 min', type: 'online', status: 'confirmed' },
   { id: 3, day: 19, title: 'Interview Prep Session', coach: 'Sarah Mitchell', time: '11:00 AM', duration: '60 min', type: 'in-person', status: 'pending' },
   { id: 4, day: 25, title: 'Monthly Check-in', coach: 'James Park', time: '3:30 PM', duration: '30 min', type: 'online', status: 'confirmed' },
   { id: 5, day: 3, title: 'Onboarding Review', coach: 'Sarah Mitchell', time: '9:00 AM', duration: '45 min', type: 'online', status: 'completed' },
 ];
+
+// Zara Ahmed — Year 12 student. Mirrors her session notes in My Journey.
+const ZARA_SESSIONS: Session[] = [
+  { id: 1, day: 4, title: 'Getting to Know You', coach: 'Sarah Mitchell', time: '3:00 PM', duration: '45 min', type: 'online', status: 'completed' },
+  { id: 2, day: 13, title: 'Check-in: Options & Next Steps', coach: 'Sarah Mitchell', time: '4:00 PM', duration: '45 min', type: 'online', status: 'confirmed', notes: 'Bring how the taster day felt, and what you found out about apprenticeships vs. university' },
+  { id: 3, day: 15, title: 'Subject Choices Review', coach: 'James Park', time: '1:00 PM', duration: '45 min', type: 'online', status: 'confirmed' },
+  { id: 4, day: 20, title: 'Work Experience Debrief', coach: 'Sarah Mitchell', time: '10:00 AM', duration: '30 min', type: 'in-person', status: 'pending' },
+];
+
+// Marcus Reid — final-year university student. Mirrors his session notes in My Journey.
+const MARCUS_SESSIONS: Session[] = [
+  { id: 1, day: 2, title: 'Onboarding Review', coach: 'Sarah Mitchell', time: '9:00 AM', duration: '45 min', type: 'online', status: 'completed' },
+  { id: 2, day: 11, title: 'Career Strategy Session', coach: 'Sarah Mitchell', time: '2:00 PM', duration: '60 min', type: 'online', status: 'confirmed', notes: 'Bring your tailored CV and the three schemes you’ve shortlisted' },
+  { id: 3, day: 13, title: 'Application Strategy Review', coach: 'James Park', time: '11:00 AM', duration: '45 min', type: 'online', status: 'confirmed' },
+  { id: 4, day: 22, title: 'Mock Assessment Centre', coach: 'Sarah Mitchell', time: '10:00 AM', duration: '90 min', type: 'in-person', status: 'pending' },
+];
+
+const SESSIONS_BY_USER: Record<string, Session[]> = {
+  'demo-user': JAMIE_SESSIONS,
+  'zara-ahmed': ZARA_SESSIONS,
+  'marcus-reid': MARCUS_SESSIONS,
+};
+
+function getSessions(userId?: string | null): Session[] {
+  return SESSIONS_BY_USER[userId ?? ''] ?? JAMIE_SESSIONS;
+}
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   confirmed: { bg: '#f0fdf4', color: '#15803d', label: 'Confirmed' },
@@ -41,6 +69,8 @@ const AVAILABLE_SLOTS = [
 ];
 
 export default function CalendarPage() {
+  const { user } = useAuth();
+  const sessions = getSessions(user?.id);
   const [currentMonth, setCurrentMonth] = useState(5); // June
   const [currentYear, setCurrentYear] = useState(2026);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
@@ -49,8 +79,8 @@ export default function CalendarPage() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7; // Monday-indexed
 
-  const sessionDays = new Set(SESSIONS.map((s) => s.day));
-  const selectedSessions = selectedDay ? SESSIONS.filter((s) => s.day === selectedDay) : [];
+  const sessionDays = new Set(sessions.map((s) => s.day));
+  const selectedSessions = selectedDay ? sessions.filter((s) => s.day === selectedDay) : [];
   const availableOnDay = selectedDay ? AVAILABLE_SLOTS.filter((s) => s.day === selectedDay) : [];
 
   const prevMonth = () => {
@@ -283,7 +313,7 @@ export default function CalendarPage() {
       ) : (
         /* List view */
         <div className="space-y-3">
-          {SESSIONS.sort((a, b) => a.day - b.day).map((s) => {
+          {sessions.sort((a, b) => a.day - b.day).map((s) => {
             const st = STATUS_STYLE[s.status];
             return (
               <div key={s.id} className="rounded-2xl p-5 flex items-center gap-4" style={{ background: 'var(--surface)' }}>

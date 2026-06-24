@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
+import { useAuth } from '@/lib/auth';
 import {
   GraduationCap, Users, Wrench, Clock, Compass, Briefcase, TrendingUp,
   ListOrdered, PenSquare, IdCard, BarChart3,
@@ -16,7 +17,6 @@ type Module = {
   format: 'Course' | 'Workshop' | 'Toolkit';
   description: string;
   duration: string;
-  progress: number;
 };
 
 const FORMAT_STYLE: Record<Module['format'], { bg: string; color: string; icon: LucideIcon }> = {
@@ -35,28 +35,72 @@ const CATEGORIES: { key: CategoryKey; label: string; icon: LucideIcon; descripti
 
 const MODULES: Record<CategoryKey, Module[]> = {
   exploration: [
-    { title: 'Mapping What Matters to You', format: 'Course', description: 'Values, motivators, and what "good work" looks like for you.', duration: '25 min', progress: 100 },
-    { title: 'Strengths in Action', format: 'Workshop', description: 'Spot transferable strengths hiding in your own stories.', duration: '35 min', progress: 60 },
-    { title: "Career Paths You Haven't Considered", format: 'Toolkit', description: 'A structured way to widen your search beyond the obvious.', duration: '20 min', progress: 0 },
+    { title: 'Mapping What Matters to You', format: 'Course', description: 'Values, motivators, and what "good work" looks like for you.', duration: '25 min' },
+    { title: 'Strengths in Action', format: 'Workshop', description: 'Spot transferable strengths hiding in your own stories.', duration: '35 min' },
+    { title: "Career Paths You Haven't Considered", format: 'Toolkit', description: 'A structured way to widen your search beyond the obvious.', duration: '20 min' },
   ],
   application: [
-    { title: 'Writing Applications That Get Read', format: 'Course', description: 'CVs and cover letters that are tailored, not generic.', duration: '30 min', progress: 40 },
-    { title: 'Interview Storytelling: the STAR Method', format: 'Workshop', description: 'Structure stories that land in interviews.', duration: '25 min', progress: 0 },
-    { title: 'Building Your Professional Network', format: 'Toolkit', description: 'Low-pressure ways to grow useful connections.', duration: '20 min', progress: 0 },
+    { title: 'Writing Applications That Get Read', format: 'Course', description: 'CVs and cover letters that are tailored, not generic.', duration: '30 min' },
+    { title: 'Interview Storytelling: the STAR Method', format: 'Workshop', description: 'Structure stories that land in interviews.', duration: '25 min' },
+    { title: 'Building Your Professional Network', format: 'Toolkit', description: 'Low-pressure ways to grow useful connections.', duration: '20 min' },
   ],
   movement: [
-    { title: 'Negotiating Your Next Role', format: 'Course', description: 'Pay, scope, flexibility, and getting the timing right.', duration: '30 min', progress: 0 },
-    { title: 'Navigating a Career Pivot', format: 'Workshop', description: 'Making a meaningful change without starting from zero.', duration: '40 min', progress: 0 },
-    { title: 'Building Resilience Through Change', format: 'Toolkit', description: 'Tools for staying grounded in the middle of a transition.', duration: '20 min', progress: 20 },
+    { title: 'Negotiating Your Next Role', format: 'Course', description: 'Pay, scope, flexibility, and getting the timing right.', duration: '30 min' },
+    { title: 'Navigating a Career Pivot', format: 'Workshop', description: 'Making a meaningful change without starting from zero.', duration: '40 min' },
+    { title: 'Building Resilience Through Change', format: 'Toolkit', description: 'Tools for staying grounded in the middle of a transition.', duration: '20 min' },
   ],
 };
+
+// Per-user completion %, keyed by module title — Marcus (final-year, actively applying) is
+// most engaged overall, Jamie moderate, Zara (just starting to explore) least.
+const PROGRESS_BY_USER: Record<string, Record<string, number>> = {
+  'demo-user': {
+    'Mapping What Matters to You': 100,
+    'Strengths in Action': 60,
+    "Career Paths You Haven't Considered": 0,
+    'Writing Applications That Get Read': 40,
+    'Interview Storytelling: the STAR Method': 0,
+    'Building Your Professional Network': 0,
+    'Negotiating Your Next Role': 0,
+    'Navigating a Career Pivot': 0,
+    'Building Resilience Through Change': 20,
+  },
+  'zara-ahmed': {
+    'Mapping What Matters to You': 100,
+    'Strengths in Action': 40,
+    "Career Paths You Haven't Considered": 20,
+    'Writing Applications That Get Read': 0,
+    'Interview Storytelling: the STAR Method': 0,
+    'Building Your Professional Network': 0,
+    'Negotiating Your Next Role': 0,
+    'Navigating a Career Pivot': 0,
+    'Building Resilience Through Change': 0,
+  },
+  'marcus-reid': {
+    'Mapping What Matters to You': 100,
+    'Strengths in Action': 100,
+    "Career Paths You Haven't Considered": 40,
+    'Writing Applications That Get Read': 100,
+    'Interview Storytelling: the STAR Method': 80,
+    'Building Your Professional Network': 60,
+    'Negotiating Your Next Role': 20,
+    'Navigating a Career Pivot': 0,
+    'Building Resilience Through Change': 40,
+  },
+};
+
+function getProgressMap(userId?: string | null): Record<string, number> {
+  return PROGRESS_BY_USER[userId ?? ''] ?? PROGRESS_BY_USER['demo-user'];
+}
 
 const ACTIVITY_TAG = { bg: '#fff7ed', color: '#c2410c' };
 
 export default function LearningPage() {
+  const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('exploration');
   const category = CATEGORIES.find((c) => c.key === activeCategory)!;
-  const modules = MODULES[activeCategory];
+  const progressMap = getProgressMap(user?.id);
+  const modules = MODULES[activeCategory].map((m) => ({ ...m, progress: progressMap[m.title] ?? 0 }));
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">

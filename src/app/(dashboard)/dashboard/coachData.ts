@@ -251,6 +251,91 @@ export const CLIENTS: Client[] = [
       focus: 'negotiation',
     },
   },
+  {
+    id: 'zara-ahmed',
+    name: 'Zara Ahmed',
+    initials: 'ZA',
+    color: '#7c3aed',
+    focus: 'Exploring subject choices, work experience and apprenticeships vs. university',
+    progress: 35,
+    lastSession: 'Getting to Know You · 4 Jun',
+    nextSession: 'Check-in: Options & Next Steps · 13 Jun, 4:00 PM',
+    tags: ['Year 12', 'Early exploration'],
+    note: "Putting pressure on herself to decide everything now — remind her she has time.",
+    actionPlan: [
+      { id: 'za-1', text: 'Complete values & motivators card sort before first session', done: true },
+      { id: 'za-2', text: 'Book a work experience taster day', done: false },
+      { id: 'za-3', text: 'Compare an apprenticeship and a university route for one subject', done: false },
+    ],
+    sessionNotes: [
+      {
+        id: 'za-s1',
+        title: 'Getting to Know You · 4 Jun',
+        insights: [
+          {
+            id: 'za-ti-1',
+            quote: "I get really into it when I'm actually making something, not just writing about it.",
+            text: 'Note down two or three school projects where she was most engaged, and what they had in common',
+          },
+          {
+            id: 'za-ti-2',
+            quote: "Everyone keeps asking what I want to do and I just don't know yet.",
+            text: "Reassure that it's normal not to have this decided at 17 — focus on the next experiment, not the final answer",
+          },
+        ],
+      },
+    ],
+    diagnosticAnswers: {
+      values: ['growth', 'creativity', 'collaboration'],
+      sectors: ['creative', 'technology'],
+      readiness: 'exploring',
+      experience: 'student',
+      focus: 'personal-development',
+    },
+  },
+  {
+    id: 'marcus-reid',
+    name: 'Marcus Reid',
+    initials: 'MR',
+    color: '#c2410c',
+    focus: "Weighing a graduate scheme offer against a Master's, building on placement-year experience",
+    progress: 48,
+    lastSession: 'Onboarding Review · 2 Jun',
+    nextSession: 'Career Strategy Session · 11 Jun, 2:00 PM',
+    tags: ['Final-year', 'Graduate schemes'],
+    note: 'Comparing himself to coursemates with different goals — help him focus on fit, not competition.',
+    actionPlan: [
+      { id: 'mr-1', text: 'Complete strengths audit before next session', done: true },
+      { id: 'mr-2', text: 'Shortlist three graduate marketing/consulting schemes', done: true },
+      { id: 'mr-3', text: 'Tailor CV to highlight placement-year results', done: false },
+      { id: 'mr-4', text: "Decide on Master's vs. grad scheme by application deadline", done: false },
+    ],
+    sessionNotes: [
+      {
+        id: 'mr-s1',
+        title: 'Onboarding Review · 2 Jun',
+        insights: [
+          {
+            id: 'mr-ti-1',
+            quote: "The bit of my placement I actually enjoyed most was presenting to the client, not the reporting.",
+            text: 'Write a short note on what the client-facing work had in common, to use as a filter for shortlisting schemes',
+          },
+          {
+            id: 'mr-ti-2',
+            quote: "Everyone on my course seems to know exactly what they want and I keep comparing myself to that.",
+            text: 'List what specifically matters to him in a first role, separate from what classmates are choosing',
+          },
+        ],
+      },
+    ],
+    diagnosticAnswers: {
+      values: ['growth', 'reward', 'recognition'],
+      sectors: ['creative', 'finance'],
+      readiness: 'ready',
+      experience: 'student',
+      focus: 'advancing',
+    },
+  },
 ];
 
 export type Appointment = {
@@ -270,6 +355,10 @@ export const APPOINTMENTS: Appointment[] = [
   { id: 2, clientId: 'aiko-tanaka', clientName: 'Aiko Tanaka', title: 'Negotiation Follow-up', day: 16, time: '2:00 PM', duration: '45 min', type: 'online', status: 'confirmed' },
   { id: 3, clientId: 'maya-okafor', clientName: 'Maya Okafor', title: 'Interview Prep Session', day: 19, time: '11:00 AM', duration: '60 min', type: 'in-person', status: 'pending' },
   { id: 4, clientId: 'jamie-rivera', clientName: 'Jamie Rivera', title: 'Onboarding Review', day: 3, time: '9:00 AM', duration: '45 min', type: 'online', status: 'completed' },
+  { id: 5, clientId: 'zara-ahmed', clientName: 'Zara Ahmed', title: 'Check-in: Options & Next Steps', day: 13, time: '4:00 PM', duration: '45 min', type: 'online', status: 'confirmed' },
+  { id: 6, clientId: 'zara-ahmed', clientName: 'Zara Ahmed', title: 'Getting to Know You', day: 4, time: '3:00 PM', duration: '45 min', type: 'online', status: 'completed' },
+  { id: 7, clientId: 'marcus-reid', clientName: 'Marcus Reid', title: 'Career Strategy Session', day: 11, time: '2:00 PM', duration: '60 min', type: 'online', status: 'confirmed' },
+  { id: 8, clientId: 'marcus-reid', clientName: 'Marcus Reid', title: 'Onboarding Review', day: 2, time: '11:00 AM', duration: '45 min', type: 'online', status: 'completed' },
 ];
 
 export type CpdItemType = 'Document' | 'Course' | 'Webinar';

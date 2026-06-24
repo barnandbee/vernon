@@ -12,18 +12,22 @@ Vernon is currently a **front-end prototype / demo**, not a production system:
 - **Stack:** Next.js 16.2.7 (App Router, Turbopack), React 19.2.4, TypeScript, Tailwind CSS v4, `lucide-react` icons, `jspdf` for PDF export.
 - **No real backend.** Every feature is backed by mock data (static arrays in `src/lib` and `src/app/(dashboard)/dashboard/coachData.ts` / `journeyData.ts`) persisted client-side only, via `localStorage`/`sessionStorage`. This gives the demo persistence across reloads in one browser, but nothing is shared across devices, users, or sessions in reality.
 - **Deployment:** runs locally (`npm run dev`) or as a static export to GitHub Pages at `https://barnandbee.github.io/vernon/` (`GITHUB_PAGES=true npm run build`); also deployable as a normal Next.js app (e.g. Vercel).
-- **Four account types** (member, coach, organisation staff, platform admin) are simulated end-to-end via seeded demo accounts rather than real sign-up/auth.
+- **Four account types** (member, coach, organisation staff, platform admin) are simulated end-to-end via seeded demo accounts rather than real sign-up/auth. The member type has three seeded identities — a working professional and two students — to demo how the same product flexes across audiences.
 
 ## Accessing the demo
 
-The whole site sits behind a site-wide passcode gate (`SiteGate`, separate from login), then a login screen with four seeded accounts, one per persona:
+The whole site sits behind a site-wide passcode gate (`SiteGate`, separate from login), then a login screen with six seeded accounts:
 
 | Persona | Account type | Email | Password | Demo identity |
 |---|---|---|---|---|
-| Member / coachee | `member` | demo@vernon.app | 1nsects | Jamie Rivera |
+| Member / coachee | `member` | demo@vernon.app | 1nsects | Jamie Rivera — working professional pivoting into people leadership |
+| Member / coachee | `member` | highschool@vernon.app | chrys4lis | Zara Ahmed — Year 12 student weighing university, apprenticeships, and other next steps |
+| Member / coachee | `member` | university@vernon.app | butt3rfly | Marcus Reid — final-year university student turning a placement into a graduate offer |
 | Organisation staff | `org_staff` | org@vernon.app | o1lbeetle | Priya Anand · Lighthouse Partners |
 | Coach | `coach` | coach@vernon.app | caterp1llar | Sarah Mitchell |
 | Platform admin | `platform_admin` | admin@vernon.app | dr4gonfly | Jordan Blake · Super Admin |
+
+Zara and Marcus get the same features as Jamie — journey, calendar, learning, resources, practice, reflections, community, chat, and profile — but with their own progress, goals, session history, and AI-chat/resource content written for their stage of life rather than a relabelled copy of Jamie's.
 
 ## Account types and navigation
 
@@ -115,7 +119,7 @@ A 5-question diagnostic — top 3 work values, sector interest, readiness to mak
 The app is intentionally a clickable, end-to-end prototype. The most natural next steps, in roughly the order they'd unlock real-world use:
 
 1. **Real backend and persistence.** Replace the localStorage-backed mock modules with an actual database and API so data survives across devices and supports many real organisations, coaches, and members concurrently.
-2. **Real authentication.** Replace the four seeded demo accounts and shared site passcode with real sign-up/login (email+password or SSO), per-organisation tenancy, and a member invite flow — the org dashboard already implies invites exist ("86 active of 120 invited").
+2. **Real authentication.** Replace the seeded demo accounts and shared site passcode with real sign-up/login (email+password or SSO), per-organisation tenancy, and a member invite flow — the org dashboard already implies invites exist ("86 active of 120 invited").
 3. **A genuine LLM-backed Career Chat.** Today's chat matches keywords to canned replies; swapping in a real model would let it have grounded, multi-turn coaching conversations — this was raised and intentionally deferred during development, but is the most visible "fake AI" in the app today.
 4. **Fuller use of the Vernon Insights diagnostic.** Sector preference, readiness, and experience level are captured but not yet wired into resource matching, because the resource library has no sector/seniority tags yet. Tagging the library and extending `resourceInsights.ts` would let recommendations use the whole diagnostic, not just values and coaching focus.
 5. **Real scheduling.** Coaching Calendar and Schedule currently read/write static mock appointments; real coach availability, conflict handling, calendar sync (Google/Outlook), and video-call links (Zoom/Meet) would make booking actually work.

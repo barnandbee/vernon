@@ -1,4 +1,5 @@
 import type { ResourceType } from './resourceLibrary';
+import { namespacedKey } from './currentUser';
 
 const BOOKMARKS_KEY = 'vernon_bookmarks';
 const ASSIGNED_KEY = 'vernon_assigned_resources';
@@ -42,7 +43,7 @@ function read<T>(key: string): T[] {
 
 // Bookmarks — lets a member save resources to access again later.
 export function getBookmarks(): string[] {
-  return read<string>(BOOKMARKS_KEY);
+  return read<string>(namespacedKey(BOOKMARKS_KEY));
 }
 
 export function toggleBookmark(resourceId: string): string[] {
@@ -50,7 +51,7 @@ export function toggleBookmark(resourceId: string): string[] {
   const updated = current.includes(resourceId)
     ? current.filter((id) => id !== resourceId)
     : [...current, resourceId];
-  localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(updated));
+  localStorage.setItem(namespacedKey(BOOKMARKS_KEY), JSON.stringify(updated));
   return updated;
 }
 
@@ -58,7 +59,7 @@ export function toggleBookmark(resourceId: string): string[] {
 // sees it under "Assigned by your coach".
 export function getAssignedResources(): AssignedResource[] {
   if (typeof window === 'undefined') return SEED_ASSIGNED;
-  return [...read<AssignedResource>(ASSIGNED_KEY), ...SEED_ASSIGNED];
+  return [...read<AssignedResource>(namespacedKey(ASSIGNED_KEY)), ...SEED_ASSIGNED];
 }
 
 export function assignResource(clientId: string, resourceId: string): AssignedResource[] {
@@ -68,14 +69,14 @@ export function assignResource(clientId: string, resourceId: string): AssignedRe
     resourceId,
     assignedAt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
   };
-  const updated = [entry, ...read<AssignedResource>(ASSIGNED_KEY)];
-  localStorage.setItem(ASSIGNED_KEY, JSON.stringify(updated));
+  const updated = [entry, ...read<AssignedResource>(namespacedKey(ASSIGNED_KEY))];
+  localStorage.setItem(namespacedKey(ASSIGNED_KEY), JSON.stringify(updated));
   return [...updated, ...SEED_ASSIGNED];
 }
 
 // Activity history — a running log of what a member has viewed and bookmarked.
 export function getActivityHistory(): ActivityEntry[] {
-  return read<ActivityEntry>(HISTORY_KEY);
+  return read<ActivityEntry>(namespacedKey(HISTORY_KEY));
 }
 
 export function logActivity(resourceId: string, title: string, type: ResourceType, action: ActivityAction): ActivityEntry[] {
@@ -88,6 +89,6 @@ export function logActivity(resourceId: string, title: string, type: ResourceTyp
     date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
   };
   const updated = [entry, ...getActivityHistory()].slice(0, MAX_HISTORY);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+  localStorage.setItem(namespacedKey(HISTORY_KEY), JSON.stringify(updated));
   return updated;
 }

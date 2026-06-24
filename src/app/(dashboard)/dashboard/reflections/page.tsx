@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/lib/auth';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import { Lightbulb, Plus, ChevronRight, Sparkles, CheckCircle2, Clock, Lock, UserRound, Sun } from 'lucide-react';
 
@@ -12,75 +13,243 @@ type Prompt = {
   locked?: boolean;
 };
 
-const CATEGORIES = ['All', 'Purpose', 'Values', 'Strengths', 'Goals', 'Coaching Follow-up'];
-
-const PROMPTS: Prompt[] = [
-  {
-    id: 1,
-    category: 'Purpose',
-    question: 'What aspects of your work give you the most energy and meaning right now?',
-    context: 'Think about the last time you left work feeling genuinely fulfilled. What were you doing?',
-  },
-  {
-    id: 2,
-    category: 'Values',
-    question: 'Which of your core values feels most compromised in your current role?',
-    context: 'Reflecting on your coaching session from June 12 — you mentioned feeling undervalued.',
-  },
-  {
-    id: 3,
-    category: 'Coaching Follow-up',
-    question: 'What one action from your strategy session with Sarah have you taken this week?',
-    context: 'Based on your session on June 12 with Sarah Mitchell.',
-  },
-  {
-    id: 4,
-    category: 'Strengths',
-    question: 'Describe a recent moment where you surprised yourself with what you could do.',
-  },
-  {
-    id: 5,
-    category: 'Goals',
-    question: 'If your career was exactly where you wanted it in 3 years, what would your day look like?',
-  },
-  {
-    id: 6,
-    category: 'Coaching Follow-up',
-    question: 'What barriers are stopping you from applying for that senior role you discussed with James?',
-    context: 'Based on your session on May 28 with James Park.',
-    locked: true,
-  },
-  {
-    id: 7,
-    category: 'Purpose',
-    question: 'What legacy do you want to leave in your professional field?',
-    locked: true,
-  },
-];
-
-// A standalone, open-ended prompt that isn't tied to any category — for days
-// when something's on your mind that doesn't fit a coach- or AI-curated topic.
-const DAILY_PROMPT: Prompt = {
-  id: 0,
-  category: 'Daily',
-  question: "What's on your mind about your career today — no filter needed?",
-  context: 'This one is intentionally open. A worry, an idea, a memory, a question — write whatever comes up, in whatever shape it takes.',
+type PastReflection = {
+  date: string;
+  question: string;
+  snippet: string;
+  category: string;
 };
 
-const PAST_REFLECTIONS = [
-  {
-    date: 'Jun 5, 2026',
-    question: 'What does success look like to you beyond the job title?',
-    snippet: "I've been thinking about this a lot lately. Success for me is waking up on Monday without dread...",
-    category: 'Purpose',
+type ReflectionStats = {
+  total: number;
+  thisMonth: number;
+  streak: number;
+};
+
+type ReflectionsContent = {
+  prompts: Prompt[];
+  dailyPrompt: Prompt;
+  pastReflections: PastReflection[];
+  stats: ReflectionStats;
+};
+
+const CATEGORIES = ['All', 'Purpose', 'Values', 'Strengths', 'Goals', 'Coaching Follow-up'];
+
+// Jamie Rivera — working professional building a case for a people-leadership move.
+const JAMIE_REFLECTIONS: ReflectionsContent = {
+  prompts: [
+    {
+      id: 1,
+      category: 'Purpose',
+      question: 'What aspects of your work give you the most energy and meaning right now?',
+      context: 'Think about the last time you left work feeling genuinely fulfilled. What were you doing?',
+    },
+    {
+      id: 2,
+      category: 'Values',
+      question: 'Which of your core values feels most compromised in your current role?',
+      context: 'Reflecting on your coaching session from June 12 — you mentioned feeling undervalued.',
+    },
+    {
+      id: 3,
+      category: 'Coaching Follow-up',
+      question: 'What one action from your strategy session with Sarah have you taken this week?',
+      context: 'Based on your session on June 12 with Sarah Mitchell.',
+    },
+    {
+      id: 4,
+      category: 'Strengths',
+      question: 'Describe a recent moment where you surprised yourself with what you could do.',
+    },
+    {
+      id: 5,
+      category: 'Goals',
+      question: 'If your career was exactly where you wanted it in 3 years, what would your day look like?',
+    },
+    {
+      id: 6,
+      category: 'Coaching Follow-up',
+      question: 'What barriers are stopping you from applying for that senior role you discussed with James?',
+      context: 'Based on your session on May 28 with James Park.',
+      locked: true,
+    },
+    {
+      id: 7,
+      category: 'Purpose',
+      question: 'What legacy do you want to leave in your professional field?',
+      locked: true,
+    },
+  ],
+  dailyPrompt: {
+    id: 0,
+    category: 'Daily',
+    question: "What's on your mind about your career today — no filter needed?",
+    context: 'This one is intentionally open. A worry, an idea, a memory, a question — write whatever comes up, in whatever shape it takes.',
   },
-  {
-    date: 'May 28, 2026',
-    question: 'Which skills do you most want to develop in the next 12 months?',
-    snippet: "Strategic communication and stakeholder management. I know the technical side well, but...",
-    category: 'Strengths',
+  pastReflections: [
+    {
+      date: 'Jun 5, 2026',
+      question: 'What does success look like to you beyond the job title?',
+      snippet: "I've been thinking about this a lot lately. Success for me is waking up on Monday without dread...",
+      category: 'Purpose',
+    },
+    {
+      date: 'May 28, 2026',
+      question: 'Which skills do you most want to develop in the next 12 months?',
+      snippet: "Strategic communication and stakeholder management. I know the technical side well, but...",
+      category: 'Strengths',
+    },
+  ],
+  stats: { total: 12, thisMonth: 3, streak: 7 },
+};
+
+// Zara Ahmed — Year 12 student exploring subjects, work experience and
+// apprenticeships vs. university before narrowing anything down.
+const ZARA_REFLECTIONS: ReflectionsContent = {
+  prompts: [
+    {
+      id: 1,
+      category: 'Purpose',
+      question: 'What subjects or activities give you the most energy and focus right now?',
+      context: 'Think about the last lesson, project or hobby that left you completely absorbed. What were you doing?',
+    },
+    {
+      id: 2,
+      category: 'Values',
+      question: 'Which of your values feels most at odds with what everyone expects you to do next?',
+      context: 'Reflecting on your Getting to Know You session — you mentioned feeling pressure to decide everything now.',
+    },
+    {
+      id: 3,
+      category: 'Coaching Follow-up',
+      question: 'What’s one thing about your taster day you want to make sure you tell Sarah?',
+      context: 'Ahead of your check-in on June 13 with Sarah Mitchell.',
+    },
+    {
+      id: 4,
+      category: 'Strengths',
+      question: 'Describe a recent moment, in or out of school, where you surprised yourself with what you could do.',
+    },
+    {
+      id: 5,
+      category: 'Goals',
+      question: 'If you could try five different jobs for a day each, which would you pick — and why those five?',
+    },
+    {
+      id: 6,
+      category: 'Coaching Follow-up',
+      question: 'What’s stopping you from asking your school’s careers office about that apprenticeship?',
+      context: 'Based on your check-in on June 13 with Sarah Mitchell.',
+      locked: true,
+    },
+    {
+      id: 7,
+      category: 'Purpose',
+      question: 'What do you want your friends to remember about you after sixth form?',
+      locked: true,
+    },
+  ],
+  dailyPrompt: {
+    id: 0,
+    category: 'Daily',
+    question: "What's on your mind about your future today — no filter needed?",
+    context: 'This one is intentionally open. A worry, an idea, a memory, a question — write whatever comes up, in whatever shape it takes.',
   },
-];
+  pastReflections: [
+    {
+      date: 'Jun 9, 2026',
+      question: 'Describe a recent moment, in or out of school, where you surprised yourself with what you could do.',
+      snippet: "Probably when I ended up leading our debate team prep even though I wasn't team captain. I just started organising...",
+      category: 'Strengths',
+    },
+    {
+      date: 'Jun 6, 2026',
+      question: 'What subjects or activities give you the most energy and focus right now?',
+      snippet: "Definitely anything where I'm making something rather than just writing about it. In art and...",
+      category: 'Purpose',
+    },
+  ],
+  stats: { total: 6, thisMonth: 2, streak: 4 },
+};
+
+// Marcus Reid — final-year university student weighing a graduate scheme
+// offer against a Master's, drawing on his placement-year experience.
+const MARCUS_REFLECTIONS: ReflectionsContent = {
+  prompts: [
+    {
+      id: 1,
+      category: 'Purpose',
+      question: 'What parts of your placement year gave you the most energy and meaning?',
+      context: 'Think about the moment during your placement when you felt most genuinely engaged. What were you doing?',
+    },
+    {
+      id: 2,
+      category: 'Values',
+      question: 'Which of your values feels most at odds with the path your coursemates are taking?',
+      context: 'Reflecting on your Onboarding Review — you mentioned comparing yourself to coursemates with very different goals.',
+    },
+    {
+      id: 3,
+      category: 'Coaching Follow-up',
+      question: 'What’s one thing from tailoring your CV that made your placement year sound stronger than you expected?',
+      context: 'Ahead of your strategy session on June 11 with Sarah Mitchell.',
+    },
+    {
+      id: 4,
+      category: 'Strengths',
+      question: 'Describe a moment during your placement where you surprised yourself with what you could do.',
+    },
+    {
+      id: 5,
+      category: 'Goals',
+      question: 'If you got both a grad scheme offer and a Master’s place in the same week, what would you actually choose — and why?',
+    },
+    {
+      id: 6,
+      category: 'Coaching Follow-up',
+      question: 'What’s holding you back from messaging that placement contact you mentioned?',
+      context: 'Based on your strategy session on June 11 with Sarah Mitchell.',
+      locked: true,
+    },
+    {
+      id: 7,
+      category: 'Purpose',
+      question: 'What do you want to be known for by the end of your first year in a graduate role?',
+      locked: true,
+    },
+  ],
+  dailyPrompt: {
+    id: 0,
+    category: 'Daily',
+    question: "What's on your mind about your next step today — no filter needed?",
+    context: 'This one is intentionally open. A worry, an idea, a memory, a question — write whatever comes up, in whatever shape it takes.',
+  },
+  pastReflections: [
+    {
+      date: 'Jun 7, 2026',
+      question: 'Describe a moment during your placement where you surprised yourself with what you could do.',
+      snippet: "Presenting the process change to senior leadership. I was terrified beforehand but it went...",
+      category: 'Strengths',
+    },
+    {
+      date: 'Jun 4, 2026',
+      question: 'What parts of your placement year gave you the most energy and meaning?',
+      snippet: "Honestly the client-facing days, not the reporting. Whenever I got to actually sit in on a pitch...",
+      category: 'Purpose',
+    },
+  ],
+  stats: { total: 15, thisMonth: 5, streak: 9 },
+};
+
+const REFLECTIONS_BY_USER: Record<string, ReflectionsContent> = {
+  'demo-user': JAMIE_REFLECTIONS,
+  'zara-ahmed': ZARA_REFLECTIONS,
+  'marcus-reid': MARCUS_REFLECTIONS,
+};
+
+function getReflectionsContent(userId?: string | null): ReflectionsContent {
+  return REFLECTIONS_BY_USER[userId ?? ''] ?? JAMIE_REFLECTIONS;
+}
 
 const CAT_COLORS: Record<string, { bg: string; color: string }> = {
   'Purpose':           { bg: '#fdf4ff', color: '#7e22ce' },
@@ -92,12 +261,14 @@ const CAT_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 export default function ReflectionsPage() {
+  const { user } = useAuth();
+  const { prompts, dailyPrompt, pastReflections, stats } = getReflectionsContent(user?.id);
   const [activeCategory, setActiveCategory] = useState('All');
   const [activePrompt, setActivePrompt] = useState<Prompt | null>(null);
   const [response, setResponse] = useState('');
   const [saved, setSaved] = useState(false);
 
-  const filtered = PROMPTS.filter(
+  const filtered = prompts.filter(
     (p) => activeCategory === 'All' || p.category === activeCategory
   );
 
@@ -191,7 +362,7 @@ export default function ReflectionsPage() {
 
       {/* Reflection Prompt of the Day */}
       <button
-        onClick={() => setActivePrompt(DAILY_PROMPT)}
+        onClick={() => setActivePrompt(dailyPrompt)}
         className="w-full text-left rounded-2xl p-5 flex items-center gap-4 flex-wrap transition-all hover:scale-[1.01]"
         style={{ background: CAT_COLORS['Daily'].bg }}
       >
@@ -202,7 +373,7 @@ export default function ReflectionsPage() {
           <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: CAT_COLORS['Daily'].color }}>
             Reflection Prompt of the Day
           </span>
-          <p className="text-sm font-medium mt-1" style={{ color: 'var(--foreground)' }}>{DAILY_PROMPT.question}</p>
+          <p className="text-sm font-medium mt-1" style={{ color: 'var(--foreground)' }}>{dailyPrompt.question}</p>
         </div>
         <ChevronRight size={18} className="flex-shrink-0" style={{ color: CAT_COLORS['Daily'].color }} />
       </button>
@@ -223,9 +394,9 @@ export default function ReflectionsPage() {
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { value: '12', label: 'Total reflections', icon: Lightbulb, color: '#7e22ce', bg: '#fdf4ff' },
-          { value: '3', label: 'This month', icon: CheckCircle2, color: '#15803d', bg: '#f0fdf4' },
-          { value: '7', label: 'Day streak', icon: Sparkles, color: '#c2410c', bg: '#fff7ed' },
+          { value: String(stats.total), label: 'Total reflections', icon: Lightbulb, color: '#7e22ce', bg: '#fdf4ff' },
+          { value: String(stats.thisMonth), label: 'This month', icon: CheckCircle2, color: '#15803d', bg: '#f0fdf4' },
+          { value: String(stats.streak), label: 'Day streak', icon: Sparkles, color: '#c2410c', bg: '#fff7ed' },
         ].map(({ value, label, icon: Icon, color, bg }) => (
           <div key={label} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: 'var(--surface)' }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: bg }}>
@@ -307,13 +478,13 @@ export default function ReflectionsPage() {
       </div>
 
       {/* Past reflections */}
-      {PAST_REFLECTIONS.length > 0 && (
+      {pastReflections.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--foreground)' }}>
             Recent Reflections
           </h2>
           <div className="space-y-3">
-            {PAST_REFLECTIONS.map((r, i) => {
+            {pastReflections.map((r, i) => {
               const catStyle = CAT_COLORS[r.category] || { bg: '#f3f4f6', color: '#374151' };
               return (
                 <div key={i} className="rounded-2xl p-5 cursor-pointer" style={{ background: 'var(--surface)' }}>

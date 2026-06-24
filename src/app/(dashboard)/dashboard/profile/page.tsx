@@ -12,7 +12,17 @@ import { getActivityHistory, getBookmarks, type ActivityEntry } from '@/lib/libr
 import { getDiagnosticAnswers, saveDiagnosticAnswers, getDiagnosticInsights, type DiagnosticAnswers } from '@/lib/diagnostic';
 import DiagnosticModal from '@/components/DiagnosticModal';
 import { APPOINTMENTS } from '../coachData';
-import { ACTION_ITEMS } from '../journeyData';
+import { getJourneyContent } from '../journeyData';
+
+const PROFILE_STATS_BY_USER: Record<string, { streak: number; reflectionsLogged: number }> = {
+  'demo-user': { streak: 7, reflectionsLogged: 12 },
+  'zara-ahmed': { streak: 4, reflectionsLogged: 6 },
+  'marcus-reid': { streak: 9, reflectionsLogged: 15 },
+};
+
+function getProfileStats(userId?: string | null) {
+  return PROFILE_STATS_BY_USER[userId ?? ''] ?? PROFILE_STATS_BY_USER['demo-user'];
+}
 
 const MEMBER_PREFERENCE_ROWS: { key: keyof Preferences; icon: LucideIcon; title: string; description: string }[] = [
   {
@@ -162,13 +172,14 @@ export default function ProfilePage() {
 
   const viewedCount = activityHistory.filter((a) => a.action === 'viewed').length;
   const savedCount = bookmarks.length;
-  const completedSessions = APPOINTMENTS.filter((a) => a.clientId === 'jamie-rivera' && a.status === 'completed').length;
-  const completedGoals = ACTION_ITEMS.filter((a) => a.status === 'done').length;
+  const completedSessions = APPOINTMENTS.filter((a) => a.clientId === user?.id && a.status === 'completed').length;
+  const completedGoals = getJourneyContent(user?.id).actionItems.filter((a) => a.status === 'done').length;
   const insights = diagnosticAnswers ? getDiagnosticInsights(diagnosticAnswers) : null;
+  const profileStats = getProfileStats(user?.id);
 
   const stats: { label: string; value: string; icon: LucideIcon; color: string; bg: string }[] = [
-    { label: 'Day streak', value: '7', icon: Flame, color: '#ea580c', bg: '#fff7ed' },
-    { label: 'Reflections logged', value: '12', icon: ScrollText, color: '#7c3aed', bg: '#f5f3ff' },
+    { label: 'Day streak', value: String(profileStats.streak), icon: Flame, color: '#ea580c', bg: '#fff7ed' },
+    { label: 'Reflections logged', value: String(profileStats.reflectionsLogged), icon: ScrollText, color: '#7c3aed', bg: '#f5f3ff' },
     { label: 'Resources viewed', value: String(viewedCount), icon: Compass, color: 'var(--primary)', bg: '#e8f4f8' },
     { label: 'Resources saved', value: String(savedCount), icon: Star, color: '#ca8a04', bg: '#fefce8' },
     { label: 'Sessions completed', value: String(completedSessions), icon: CalendarCheck, color: '#15803d', bg: '#f0fdf4' },

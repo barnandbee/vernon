@@ -6,6 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import SourceBadge from '@/components/SourceBadge';
 import OrgPrivacyNote from '@/components/OrgPrivacyNote';
 import { addSharedNote } from '@/lib/sharedNotes';
+import { useAuth } from '@/lib/auth';
 import {
   Compass, CheckCircle2, Circle, Clock3, Clock, ChevronRight, Sparkles,
   Lightbulb, ArrowRight, Video, Users, ListChecks, Shuffle, UserRound,
@@ -13,7 +14,7 @@ import {
   SendHorizontal,
 } from 'lucide-react';
 import {
-  ACTION_ITEMS, SESSION_NOTES, FREE_EXPLORATION, QUICK_WINS, DEVELOPMENT_GOALS,
+  getJourneyContent, FREE_EXPLORATION,
   type Status,
 } from '../journeyData';
 
@@ -53,8 +54,10 @@ const EXPLORATION_ICONS: Record<string, LucideIcon> = {
 
 export default function JourneyPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const { actionItems, sessionNotes, quickWins, developmentGoals } = getJourneyContent(user?.id);
   const [statuses, setStatuses] = useState<Record<number, Status>>(() =>
-    Object.fromEntries(ACTION_ITEMS.map((a) => [a.id, a.status]))
+    Object.fromEntries(actionItems.map((a) => [a.id, a.status]))
   );
   const [openCheckIn, setOpenCheckIn] = useState<number | null>(null);
   const [checkInText, setCheckInText] = useState('');
@@ -92,8 +95,8 @@ export default function JourneyPage() {
 
   const handleShareNote = () => {
     const text = shareText.trim();
-    if (!text) return;
-    addSharedNote('jamie-rivera', 'Jamie Rivera', text);
+    if (!text || !user) return;
+    addSharedNote(user.id, user.name, text);
     setSharedHistory((prev) => [text, ...prev]);
     setShareText('');
     setShareSaved(true);
@@ -101,13 +104,13 @@ export default function JourneyPage() {
   };
 
   const completedCount = Object.values(statuses).filter((s) => s === 'done').length;
-  const openCoachItems = ACTION_ITEMS.filter((a) => a.source === 'coach' && statuses[a.id] !== 'done').length;
+  const openCoachItems = actionItems.filter((a) => a.source === 'coach' && statuses[a.id] !== 'done').length;
 
   const SUMMARY = [
     { label: 'Open items from your coach', value: String(openCoachItems), icon: UserRound, color: 'var(--primary)', bg: '#e8f4f8' },
-    { label: 'Session notes to review', value: String(SESSION_NOTES.length), icon: NotebookPen, color: '#15803d', bg: '#f0fdf4' },
-    { label: 'Quick wins ready', value: String(QUICK_WINS.length), icon: Zap, color: '#c2410c', bg: '#fff7ed' },
-    { label: 'Development goals', value: String(DEVELOPMENT_GOALS.length), icon: Flag, color: '#7e22ce', bg: '#fdf4ff' },
+    { label: 'Session notes to review', value: String(sessionNotes.length), icon: NotebookPen, color: '#15803d', bg: '#f0fdf4' },
+    { label: 'Quick wins ready', value: String(quickWins.length), icon: Zap, color: '#c2410c', bg: '#fff7ed' },
+    { label: 'Development goals', value: String(developmentGoals.length), icon: Flag, color: '#7e22ce', bg: '#fdf4ff' },
   ];
 
   return (
@@ -203,7 +206,7 @@ export default function JourneyPage() {
         {/* Coaching Session */}
         {activeTab === 'session' && (
           <div className="space-y-3">
-            {SESSION_NOTES.map((note) => (
+            {sessionNotes.map((note) => (
               <div key={note.id} className="rounded-xl p-4" style={{ background: 'var(--surface-muted)' }}>
                 <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
                   <div>
@@ -244,13 +247,13 @@ export default function JourneyPage() {
                   <SourceBadge source="ai" label="Vernon AI digital prompt" />
                 </div>
                 <span className="text-xs font-medium flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
-                  {completedCount} / {ACTION_ITEMS.length} done
+                  {completedCount} / {actionItems.length} done
                 </span>
               </div>
             </div>
 
             <div className="space-y-3">
-              {ACTION_ITEMS.map((item) => {
+              {actionItems.map((item) => {
                 const status = statuses[item.id];
                 return (
                   <div key={item.id} className="rounded-xl p-4" style={{ background: 'var(--surface-muted)' }}>
@@ -389,14 +392,14 @@ export default function JourneyPage() {
             Things you could do right now
           </h2>
           <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
-            {completedWins.size} / {QUICK_WINS.length} done
+            {completedWins.size} / {quickWins.length} done
           </span>
         </div>
         <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
           Small, low-effort steps you can knock out in a few spare minutes.
         </p>
         <div className="space-y-2">
-          {QUICK_WINS.map((win) => {
+          {quickWins.map((win) => {
             const done = completedWins.has(win.id);
             return (
               <button
@@ -439,7 +442,7 @@ export default function JourneyPage() {
           The bigger picture behind your day-to-day actions.
         </p>
         <div className="space-y-3">
-          {DEVELOPMENT_GOALS.map((goal) => (
+          {developmentGoals.map((goal) => (
             <div key={goal.id} className="rounded-xl p-3" style={{ background: 'var(--surface-muted)' }}>
               <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
                 <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{goal.title}</p>
@@ -463,7 +466,7 @@ export default function JourneyPage() {
           Share a note with your coach
         </h2>
         <p className="text-xs mb-3 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-          Anything you&apos;d like Sarah to know before your next session — a question, a worry, something that&apos;s changed. She&apos;ll see this before your Jun 12 session, or use it for reference.
+          Anything you&apos;d like Sarah to know before your next session — a question, a worry, something that&apos;s changed. She&apos;ll see this before your next session, or use it for reference.
         </p>
         <textarea
           value={shareText}

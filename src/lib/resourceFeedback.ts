@@ -1,3 +1,5 @@
+import { namespacedKey } from './currentUser';
+
 const FEEDBACK_KEY = 'vernon_resource_feedback';
 
 export type FeedbackValue = 'up' | 'down';
@@ -5,7 +7,7 @@ export type FeedbackValue = 'up' | 'down';
 export function getResourceFeedback(): Record<string, FeedbackValue> {
   if (typeof window === 'undefined') return {};
   try {
-    const stored = localStorage.getItem(FEEDBACK_KEY);
+    const stored = localStorage.getItem(namespacedKey(FEEDBACK_KEY));
     return stored ? (JSON.parse(stored) as Record<string, FeedbackValue>) : {};
   } catch {
     return {};
@@ -21,6 +23,6 @@ export function setResourceFeedback(resourceId: string, value: FeedbackValue): R
   } else {
     updated[resourceId] = value;
   }
-  localStorage.setItem(FEEDBACK_KEY, JSON.stringify(updated));
+  localStorage.setItem(namespacedKey(FEEDBACK_KEY), JSON.stringify(updated));
   return updated;
 }

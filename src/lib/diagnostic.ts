@@ -1,7 +1,9 @@
+import { namespacedKey } from './currentUser';
+
 export type ValueKey = 'autonomy' | 'impact' | 'stability' | 'growth' | 'recognition' | 'collaboration' | 'creativity' | 'reward';
 export type SectorKey = 'technology' | 'healthcare' | 'finance' | 'education' | 'nonprofit' | 'creative' | 'sustainability' | 'retail';
 export type ReadinessLevel = 'exploring' | 'planning' | 'ready' | 'unsure';
-export type ExperienceLevel = 'early' | 'mid' | 'senior' | 'executive';
+export type ExperienceLevel = 'student' | 'early' | 'mid' | 'senior' | 'executive';
 export type CoachingFocus = 'advancing' | 'career-change' | 'leadership' | 'negotiation' | 'personal-development' | 'returning';
 
 export type DiagnosticAnswers = {
@@ -54,6 +56,7 @@ export const READINESS_OPTIONS: Option<ReadinessLevel>[] = [
 ];
 
 export const EXPERIENCE_OPTIONS: Option<ExperienceLevel>[] = [
+  { key: 'student', label: 'Still studying', description: 'At school, college or university — little or no full-time work experience yet' },
   { key: 'early', label: 'Early career', description: '0–3 years experience' },
   { key: 'mid', label: 'Mid-career', description: '4–9 years experience' },
   { key: 'senior', label: 'Senior', description: '10–15 years experience' },
@@ -70,6 +73,7 @@ export const FOCUS_OPTIONS: Option<CoachingFocus>[] = [
 ];
 
 const EXPERIENCE_NARRATIVE: Record<ExperienceLevel, string> = {
+  student: 'still studying, with little or no full-time experience yet',
   early: 'early in their career',
   mid: 'a mid-career professional',
   senior: 'a senior professional',
@@ -130,7 +134,7 @@ export const DIAGNOSTIC_PENDING_SESSION_KEY = 'vernon_diagnostic_pending';
 export function getDiagnosticAnswers(): DiagnosticAnswers | null {
   if (typeof window === 'undefined') return null;
   try {
-    const stored = localStorage.getItem(DIAGNOSTIC_KEY);
+    const stored = localStorage.getItem(namespacedKey(DIAGNOSTIC_KEY));
     return stored ? (JSON.parse(stored) as DiagnosticAnswers) : null;
   } catch {
     return null;
@@ -138,6 +142,6 @@ export function getDiagnosticAnswers(): DiagnosticAnswers | null {
 }
 
 export function saveDiagnosticAnswers(answers: DiagnosticAnswers): DiagnosticAnswers {
-  localStorage.setItem(DIAGNOSTIC_KEY, JSON.stringify(answers));
+  localStorage.setItem(namespacedKey(DIAGNOSTIC_KEY), JSON.stringify(answers));
   return answers;
 }

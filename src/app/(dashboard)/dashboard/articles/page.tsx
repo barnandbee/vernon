@@ -6,6 +6,7 @@ import {
   Search, Clock, Tag, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Layers, History, UserRound,
   Sparkles, ThumbsUp, ThumbsDown, Shuffle,
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
 import { RESOURCE_LIBRARY, TYPE_META, getResourceLibrary, type LibraryResource, type ResourceType } from '@/lib/resourceLibrary';
 import {
   getBookmarks, toggleBookmark, getAssignedResources, getActivityHistory, logActivity,
@@ -16,9 +17,6 @@ import { getResourceInsight, getExplorationResources } from '@/lib/resourceInsig
 import { getResourceFeedback, setResourceFeedback, type FeedbackValue } from '@/lib/resourceFeedback';
 import { getDiagnosticAnswers, type DiagnosticAnswers } from '@/lib/diagnostic';
 import ResourceModal from '@/components/ResourceModal';
-
-// The demo member account is Jamie Rivera, matching CLIENTS[0] in coachData.
-const MEMBER_CLIENT_ID = 'jamie-rivera';
 
 const CATEGORIES = ['All', 'Career Change', 'Leadership', 'Networking', 'Work-Life Balance', 'Salary & Negotiation', 'Skills', 'Resilience'];
 
@@ -46,7 +44,15 @@ const ACTION_LABEL: Record<ActivityAction, string> = {
   unbookmarked: 'Bookmark removed',
 };
 
+// Overrides which resource leads the page for personas the default (admin-set) featured
+// pick doesn't fit — falls back to the library's own `featured` flag for everyone else.
+const FEATURED_OVERRIDE_BY_USER: Record<string, string> = {
+  'zara-ahmed': 'res-19',
+  'marcus-reid': 'res-20',
+};
+
 export default function ArticlesPage() {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeType, setActiveType] = useState<'all' | ResourceType>('all');
@@ -77,12 +83,13 @@ export default function ArticlesPage() {
     return matchesSearch && matchesCategory && matchesType;
   });
 
-  const featured = filtered.find((r) => r.featured);
+  const featuredId = FEATURED_OVERRIDE_BY_USER[user?.id ?? ''] ?? library.find((r) => r.featured)?.id;
+  const featured = filtered.find((r) => r.id === featuredId);
   const showFeatured = !search && activeCategory === 'All' && activeType === 'all' && !!featured;
-  const gridItems = showFeatured ? filtered.filter((r) => !r.featured) : filtered;
+  const gridItems = showFeatured && featured ? filtered.filter((r) => r.id !== featured.id) : filtered;
 
   const assignedResources = assigned
-    .filter((a) => a.clientId === MEMBER_CLIENT_ID)
+    .filter((a) => a.clientId === user?.id)
     .map((a) => ({ assignment: a, resource: library.find((r) => r.id === a.resourceId) }))
     .filter((x): x is { assignment: AssignedResource; resource: LibraryResource } => !!x.resource);
 

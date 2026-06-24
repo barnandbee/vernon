@@ -13,6 +13,7 @@ interface User {
   orgName?: string;
   avatar?: string;
   adminLevel?: AdminLevel;
+  cohort?: 'high_school' | 'university';
 }
 
 interface AuthContextType {
@@ -43,6 +44,16 @@ export const COACH_DEMO_CREDENTIALS = {
 export const ADMIN_DEMO_CREDENTIALS = {
   email: 'admin@vernon.app',
   password: 'dr4gonfly',
+};
+
+export const HS_STUDENT_CREDENTIALS = {
+  email: 'highschool@vernon.app',
+  password: 'chrys4lis',
+};
+
+export const UNI_STUDENT_CREDENTIALS = {
+  email: 'university@vernon.app',
+  password: 'butt3rfly',
 };
 
 const DEMO_USER: User = {
@@ -79,6 +90,24 @@ const ADMIN_DEMO_USER: User = {
   adminLevel: 'super_admin',
 };
 
+const HS_STUDENT_USER: User = {
+  id: 'zara-ahmed',
+  name: 'Zara Ahmed',
+  email: HS_STUDENT_CREDENTIALS.email,
+  role: 'Year 12 Student · Demo Account',
+  accountType: 'member',
+  cohort: 'high_school',
+};
+
+const UNI_STUDENT_USER: User = {
+  id: 'marcus-reid',
+  name: 'Marcus Reid',
+  email: UNI_STUDENT_CREDENTIALS.email,
+  role: 'Final-Year Student · Demo Account',
+  accountType: 'member',
+  cohort: 'university',
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -112,9 +141,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       normalizedEmail === ADMIN_DEMO_CREDENTIALS.email &&
       password === ADMIN_DEMO_CREDENTIALS.password;
 
-    if (!isDemoAccount && !isOrgDemoAccount && !isCoachAccount && !isAdminAccount) return false;
+    const isHsStudentAccount =
+      normalizedEmail === HS_STUDENT_CREDENTIALS.email &&
+      password === HS_STUDENT_CREDENTIALS.password;
 
-    const loggedInUser = isOrgDemoAccount ? ORG_DEMO_USER : isCoachAccount ? COACH_DEMO_USER : isAdminAccount ? ADMIN_DEMO_USER : DEMO_USER;
+    const isUniStudentAccount =
+      normalizedEmail === UNI_STUDENT_CREDENTIALS.email &&
+      password === UNI_STUDENT_CREDENTIALS.password;
+
+    if (!isDemoAccount && !isOrgDemoAccount && !isCoachAccount && !isAdminAccount && !isHsStudentAccount && !isUniStudentAccount) return false;
+
+    const loggedInUser = isOrgDemoAccount
+      ? ORG_DEMO_USER
+      : isCoachAccount
+      ? COACH_DEMO_USER
+      : isAdminAccount
+      ? ADMIN_DEMO_USER
+      : isHsStudentAccount
+      ? HS_STUDENT_USER
+      : isUniStudentAccount
+      ? UNI_STUDENT_USER
+      : DEMO_USER;
 
     setUser(loggedInUser);
     localStorage.setItem('vernon_user', JSON.stringify(loggedInUser));
