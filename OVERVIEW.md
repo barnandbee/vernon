@@ -20,12 +20,12 @@ The whole site sits behind a site-wide passcode gate (`SiteGate`, separate from 
 
 | Persona | Account type | Email | Password | Demo identity |
 |---|---|---|---|---|
-| Member / coachee | `member` | demo@vernon.app | 1nsects | Jamie Rivera — working professional pivoting into people leadership |
-| Member / coachee | `member` | highschool@vernon.app | chrys4lis | Zara Ahmed — Year 12 student weighing university, apprenticeships, and other next steps |
-| Member / coachee | `member` | university@vernon.app | butt3rfly | Marcus Reid — final-year university student turning a placement into a graduate offer |
-| Organisation staff | `org_staff` | org@vernon.app | o1lbeetle | Priya Anand · Lighthouse Partners |
-| Coach | `coach` | coach@vernon.app | caterp1llar | Sarah Mitchell |
-| Platform admin | `platform_admin` | admin@vernon.app | dr4gonfly | Jordan Blake · Super Admin |
+| Member / coachee | `member` | demo@vernon.app | XXXXX | Jamie Rivera — working professional pivoting into people leadership |
+| Member / coachee | `member` | highschool@vernon.app | XXXXX | Zara Ahmed — Year 12 student weighing university, apprenticeships, and other next steps |
+| Member / coachee | `member` | university@vernon.app | XXXXX | Marcus Reid — final-year university student turning a placement into a graduate offer |
+| Organisation staff | `org_staff` | org@vernon.app | XXXXX | Priya Anand · Lighthouse Partners |
+| Coach | `coach` | coach@vernon.app | XXXXX | Sarah Mitchell |
+| Platform admin | `platform_admin` | admin@vernon.app | XXXXX | Jordan Blake · Super Admin |
 
 Zara and Marcus get the same features as Jamie — journey, calendar, learning, resources, practice, reflections, community, chat, and profile — but with their own progress, goals, session history, and AI-chat/resource content written for their stage of life rather than a relabelled copy of Jamie's.
 
