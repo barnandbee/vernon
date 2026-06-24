@@ -20,10 +20,10 @@ The whole site sits behind a site-wide passcode gate (`SiteGate`, separate from 
 
 | Persona | Account type | Email | Password | Demo identity |
 |---|---|---|---|---|
-| Member / coachee | `member` | demo@vernon.app | 1nsects | Jamie Rivera |
-| Organisation staff | `org_staff` | org@vernon.app | o1lbeetle | Priya Anand · Lighthouse Partners |
-| Coach | `coach` | coach@vernon.app | caterp1llar | Sarah Mitchell |
-| Platform admin | `platform_admin` | admin@vernon.app | dr4gonfly | Jordan Blake · Super Admin |
+| Member / coachee | `member` | demo@vernon.app | XXXXX | Jamie Rivera |
+| Organisation staff | `org_staff` | org@vernon.app | XXXXX | Priya Anand · Lighthouse Partners |
+| Coach | `coach` | coach@vernon.app | XXXXX | Sarah Mitchell |
+| Platform admin | `platform_admin` | admin@vernon.app | XXXXX | Jordan Blake · Super Admin |
 
 ## Account types and navigation
 
