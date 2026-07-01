@@ -5,9 +5,15 @@ import { useAuth } from '@/lib/auth';
 import { hasCapability } from '@/lib/permissions';
 import {
   getResourceLibrary, createLibraryResource, updateLibraryResource, deleteLibraryResource,
-  TYPE_META, type LibraryResource, type ResourceType,
+  TYPE_META, type AudienceType, type LibraryResource, type ResourceType,
 } from '@/lib/resourceLibrary';
 import { Plus, Pencil, Trash2, X, Check, ShieldAlert, Star } from 'lucide-react';
+
+const AUDIENCE_OPTIONS: { key: AudienceType; label: string; bg: string; color: string }[] = [
+  { key: 'school',     label: 'School',            bg: '#fdf4ff', color: '#7e22ce' },
+  { key: 'university', label: 'University',         bg: '#eff6ff', color: '#1d4ed8' },
+  { key: 'general',    label: 'General (working age)', bg: '#f0fdf4', color: '#15803d' },
+];
 
 type FormState = {
   type: ResourceType;
@@ -20,10 +26,11 @@ type FormState = {
   author: string;
   date: string;
   featured: boolean;
+  audiences: AudienceType[];
 };
 
 const EMPTY_FORM: FormState = {
-  type: 'Article', title: '', summary: '', content: '', category: '', tags: '', mins: '5', author: '', date: '', featured: false,
+  type: 'Article', title: '', summary: '', content: '', category: '', tags: '', mins: '5', author: '', date: '', featured: false, audiences: [],
 };
 
 const inputStyle = { background: 'var(--surface-muted)', borderColor: 'var(--border)', color: 'var(--foreground)' };
@@ -54,7 +61,7 @@ export default function AdminResourcesPage() {
     setForm({
       type: r.type, title: r.title, summary: r.summary, content: r.content ?? '',
       category: r.category, tags: r.tags.join(', '), mins: String(r.mins),
-      author: r.author, date: r.date, featured: !!r.featured,
+      author: r.author, date: r.date, featured: !!r.featured, audiences: r.audiences ?? [],
     });
     setEditingId(r.id);
     setShowForm(true);
@@ -81,6 +88,7 @@ export default function AdminResourcesPage() {
       author: form.author.trim(),
       date: form.date.trim(),
       featured: form.featured,
+      audiences: form.audiences,
     };
 
     if (editingId) {
@@ -146,9 +154,19 @@ export default function AdminResourcesPage() {
                   </div>
                   <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{r.category} · {r.author} · {r.mins} min</p>
                 </div>
-                <span className="text-xs px-2 py-1 rounded-lg font-medium" style={{ background: 'var(--surface)', color: meta.color }}>
-                  {meta.label}
-                </span>
+                <div className="flex items-center gap-1 flex-wrap">
+                  <span className="text-xs px-2 py-1 rounded-lg font-medium" style={{ background: 'var(--surface)', color: meta.color }}>
+                    {meta.label}
+                  </span>
+                  {(r.audiences ?? []).map((aud) => {
+                    const a = AUDIENCE_OPTIONS.find((o) => o.key === aud);
+                    return a ? (
+                      <span key={aud} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ background: a.bg, color: a.color }}>
+                        {a.key === 'general' ? 'General' : a.key === 'school' ? 'School' : 'University'}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
                 {canManage && (
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {confirmDeleteId === r.id ? (
@@ -293,6 +311,30 @@ export default function AdminResourcesPage() {
                 />
                 Feature this resource
               </label>
+              <div>
+                <label className="text-xs font-medium mb-2 block" style={{ color: 'var(--text-muted)' }}>
+                  Audience — who can see this resource (leave all unchecked to show to everyone)
+                </label>
+                <div className="flex gap-4 flex-wrap">
+                  {AUDIENCE_OPTIONS.map((opt) => (
+                    <label key={opt.key} className="flex items-center gap-1.5 text-sm cursor-pointer" style={{ color: 'var(--foreground)' }}>
+                      <input
+                        type="checkbox"
+                        checked={form.audiences.includes(opt.key)}
+                        onChange={(e) => setForm({
+                          ...form,
+                          audiences: e.target.checked
+                            ? [...form.audiences, opt.key]
+                            : form.audiences.filter((a) => a !== opt.key),
+                        })}
+                      />
+                      <span className="px-2 py-0.5 rounded-md text-xs font-medium" style={{ background: opt.bg, color: opt.color }}>
+                        {opt.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
             <button
               onClick={handleSubmit}

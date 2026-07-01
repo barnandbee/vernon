@@ -7,7 +7,7 @@ import {
   Sparkles, ThumbsUp, ThumbsDown, Shuffle,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { RESOURCE_LIBRARY, TYPE_META, getResourceLibrary, type LibraryResource, type ResourceType } from '@/lib/resourceLibrary';
+import { RESOURCE_LIBRARY, TYPE_META, getResourceLibrary, type AudienceType, type LibraryResource, type ResourceType } from '@/lib/resourceLibrary';
 import {
   getBookmarks, toggleBookmark, getAssignedResources, getActivityHistory, logActivity,
   type ActivityEntry, type AssignedResource, type ActivityAction,
@@ -51,6 +51,12 @@ const FEATURED_OVERRIDE_BY_USER: Record<string, string> = {
   'marcus-reid': 'res-20',
 };
 
+const AUDIENCE_BY_USER: Record<string, AudienceType> = {
+  'demo-user': 'general',
+  'zara-ahmed': 'school',
+  'marcus-reid': 'university',
+};
+
 export default function ArticlesPage() {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
@@ -75,7 +81,12 @@ export default function ArticlesPage() {
     setLibrary(getResourceLibrary());
   }, []);
 
-  const filtered = library.filter((r) => {
+  const userAudience = AUDIENCE_BY_USER[user?.id ?? ''] ?? 'general';
+  const audienceLibrary = library.filter(
+    (r) => !r.audiences || r.audiences.length === 0 || r.audiences.includes(userAudience),
+  );
+
+  const filtered = audienceLibrary.filter((r) => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) ||
       r.summary.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = activeCategory === 'All' || r.category === activeCategory;
@@ -83,7 +94,7 @@ export default function ArticlesPage() {
     return matchesSearch && matchesCategory && matchesType;
   });
 
-  const featuredId = FEATURED_OVERRIDE_BY_USER[user?.id ?? ''] ?? library.find((r) => r.featured)?.id;
+  const featuredId = FEATURED_OVERRIDE_BY_USER[user?.id ?? ''] ?? audienceLibrary.find((r) => r.featured)?.id;
   const featured = filtered.find((r) => r.id === featuredId);
   const showFeatured = !search && activeCategory === 'All' && activeType === 'all' && !!featured;
   const gridItems = showFeatured && featured ? filtered.filter((r) => r.id !== featured.id) : filtered;
@@ -94,7 +105,7 @@ export default function ArticlesPage() {
     .filter((x): x is { assignment: AssignedResource; resource: LibraryResource } => !!x.resource);
 
   const bookmarkedResources = bookmarks
-    .map((id) => library.find((r) => r.id === id))
+    .map((id) => audienceLibrary.find((r) => r.id === id))
     .filter((r): r is LibraryResource => !!r);
 
   const explorationResources = getExplorationResources(
@@ -102,6 +113,7 @@ export default function ArticlesPage() {
     [...bookmarks, ...assignedResources.map((a) => a.resource.id)],
     3,
     diagnostic,
+    audienceLibrary,
   );
 
   const openResource = (resource: LibraryResource) => {

@@ -102,8 +102,9 @@ export function getExplorationResources(
   excludeIds: string[] = [],
   count = 3,
   diagnostic?: DiagnosticAnswers | null,
+  sourceLibrary?: LibraryResource[],
 ): LibraryResource[] {
-  const scored = getResourceLibrary()
+  const scored = (sourceLibrary ?? getResourceLibrary())
     .filter((r) => !excludeIds.includes(r.id))
     .map((r) => {
       const skillScore = matchedSkills(r, profile.skills).length;

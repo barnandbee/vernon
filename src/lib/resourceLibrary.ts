@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import { BookOpen, Video, Headphones, Wrench } from 'lucide-react';
 
 export type ResourceType = 'Article' | 'Video' | 'Podcast' | 'Toolkit';
+export type AudienceType = 'school' | 'university' | 'general';
 
 export type LibraryResource = {
   id: string;
@@ -15,6 +16,8 @@ export type LibraryResource = {
   author: string;
   date: string;
   featured?: boolean;
+  /** Which member audiences can see this resource. Absent or empty = everyone. */
+  audiences?: AudienceType[];
 };
 
 export const TYPE_META: Record<ResourceType, { label: string; icon: LucideIcon; verb: string; bg: string; color: string }> = {
@@ -41,6 +44,7 @@ Build the transition in stages. Spend 90 days exploring through conversations, s
     author: 'Dr. Sarah Mitchell',
     date: 'Jun 5, 2026',
     featured: true,
+    audiences: ['general'],
   },
   {
     id: 'res-2',
@@ -73,6 +77,7 @@ In the conversation itself, lead with contribution, then make the ask explicit: 
     mins: 4,
     author: 'Lisa Chen',
     date: 'May 28, 2026',
+    audiences: ['general'],
   },
   {
     id: 'res-4',
@@ -105,6 +110,7 @@ Bring people in early, and give credit generously; influence grows when others f
     mins: 8,
     author: 'Dr. Aisha Patel',
     date: 'May 20, 2026',
+    audiences: ['general'],
   },
   {
     id: 'res-6',
@@ -143,6 +149,7 @@ Boundaries also need consistency to hold. If you say you won't answer messages a
     mins: 18,
     author: 'Lisa Chen',
     date: 'Jun 1, 2026',
+    audiences: ['general'],
   },
   {
     id: 'res-9',
@@ -165,6 +172,7 @@ Boundaries also need consistency to hold. If you say you won't answer messages a
     mins: 34,
     author: 'Vernon Conversations',
     date: 'Jun 6, 2026',
+    audiences: ['general'],
   },
   {
     id: 'res-11',
@@ -176,6 +184,7 @@ Boundaries also need consistency to hold. If you say you won't answer messages a
     mins: 28,
     author: 'Vernon Conversations',
     date: 'May 30, 2026',
+    audiences: ['general'],
   },
   {
     id: 'res-12',
@@ -247,6 +256,7 @@ Treat this as a step, not a verdict. Almost every path allows for a correction l
     mins: 5,
     author: 'Vernon Coaching Team',
     date: 'Jun 9, 2026',
+    audiences: ['school'],
   },
   {
     id: 'res-18',
@@ -263,6 +273,7 @@ Afterwards, write down three things that surprised you, good or bad, while they'
     mins: 6,
     author: 'Mark Davies',
     date: 'Jun 7, 2026',
+    audiences: ['school', 'university'],
   },
   {
     id: 'res-19',
@@ -274,6 +285,7 @@ Afterwards, write down three things that surprised you, good or bad, while they'
     mins: 20,
     author: 'Vernon Coaching Team',
     date: 'Jun 11, 2026',
+    audiences: ['school'],
   },
   {
     id: 'res-20',
@@ -290,6 +302,7 @@ Decide based on a concrete near-term goal rather than which option sounds better
     mins: 6,
     author: 'Dr. Sarah Mitchell',
     date: 'Jun 8, 2026',
+    audiences: ['university'],
   },
   {
     id: 'res-21',
@@ -306,6 +319,7 @@ Once you've found three or four of these moments, practice telling them out loud
     mins: 5,
     author: 'Lisa Chen',
     date: 'Jun 5, 2026',
+    audiences: ['university'],
   },
   {
     id: 'res-22',
@@ -317,6 +331,7 @@ Once you've found three or four of these moments, practice telling them out loud
     mins: 22,
     author: 'Vernon Conversations',
     date: 'Jun 10, 2026',
+    audiences: ['university'],
   },
 ];
 
